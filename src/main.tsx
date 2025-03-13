@@ -2,19 +2,28 @@ import { Devvit, useWebView } from '@devvit/public-api';
 import { DEVVIT_SETTINGS_KEYS } from './constants.js';
 import { BlocksToWebviewMessage, WebviewToBlockMessage } from '../game/shared.js';
 import { Preview } from './components/Preview.js';
-import { getPokemonByName } from './core/pokeapi.js';
 
-Devvit.addSettings([
-  // Just here as an example
-  {
-    name: DEVVIT_SETTINGS_KEYS.SECRET_API_KEY,
-    label: 'API Key for secret things',
-    type: 'string',
-    isSecret: true,
-    scope: 'app',
-  },
-]);
+const getCurrentUsername = async (context: any) => {
+  console.log('Getting current username');
+  return (await context.reddit.getCurrentUsername()) ?? 'anon';
+};
 
+// Fetch path from Redis
+const getSubredditPathFromRedis = async (context: any, username: string) => {
+  const subredditPath = await context.redis.get(`subredditPath_${username}`);
+  console.log('Subreddit path:', subredditPath);
+  return subredditPath ? JSON.parse(subredditPath) : [];
+};
+
+// Add the new subreddit to the user's path
+const setSubredditPathInRedis = async (context: any, username: string, newSubreddit: string) => {
+  const subredditPath = await getSubredditPathFromRedis(context, username);
+  console.log('Current subreddit path:', subredditPath);
+  subredditPath.push(newSubreddit);
+  await context.redis.set(`subredditPath_${username}`, JSON.stringify(subredditPath)); // Save the new path
+};
+
+// Register Devvit settings
 Devvit.configure({
   redditAPI: true,
   http: true,
@@ -22,8 +31,8 @@ Devvit.configure({
   realtime: true,
 });
 
+// Add a menu item for creating a post
 Devvit.addMenuItem({
-  // Please update as you work on your idea!
   label: 'Make my experience post',
   location: 'subreddit',
   forUserType: 'moderator',
@@ -31,7 +40,6 @@ Devvit.addMenuItem({
     const { reddit, ui } = context;
     const subreddit = await reddit.getCurrentSubreddit();
     const post = await reddit.submitPost({
-      // Title of the post. You'll want to update!
       title: 'My first experience post',
       subredditName: subreddit.name,
       preview: <Preview />,
@@ -41,7 +49,7 @@ Devvit.addMenuItem({
   },
 });
 
-// Add a post type definition
+// Add a post type definition for the game
 Devvit.addCustomPostType({
   name: 'Experience Post',
   height: 'tall',
@@ -51,31 +59,32 @@ Devvit.addCustomPostType({
         console.log('Received message', event);
         const data = event as unknown as WebviewToBlockMessage;
 
+        const username = await getCurrentUsername(context);
+        let subredditPath = await getSubredditPathFromRedis(context, username);
+
         switch (data.type) {
           case 'INIT':
             postMessage({
               type: 'INIT_RESPONSE',
               payload: {
                 postId: context.postId!,
+                subredditPath: subredditPath,
               },
             });
             break;
-          case 'GET_POKEMON_REQUEST':
-            context.ui.showToast({ text: `Received message: ${JSON.stringify(data)}` });
-            const pokemon = await getPokemonByName(data.payload.name);
+
+          case 'DISCOVER_SUBREDDIT':
+            const newSubreddit = data.payload.subreddit;
+            await setSubredditPathInRedis(context, username, newSubreddit);
+            subredditPath = await getSubredditPathFromRedis(context, username); // Update the path
 
             postMessage({
-              type: 'GET_POKEMON_RESPONSE',
+              type: 'UPDATE_SUBREDDIT_PATH',
               payload: {
-                name: pokemon.name,
-                number: pokemon.id,
-                // Note that we don't allow outside images on Reddit if
-                // wanted to get the sprite. Please reach out to support
-                // if you need this for your app!
+                subredditPath: subredditPath,
               },
             });
             break;
-
           default:
             console.error('Unknown message type', data satisfies never);
             break;

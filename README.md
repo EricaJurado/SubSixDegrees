@@ -2,8 +2,6 @@
 
 A template repository for writing webview apps with Devvit.
 
-https://github.com/user-attachments/assets/5bf4d6ec-5ff1-49ce-8c50-f46e7fbac781
-
 ### Tech
 
 - [Devvit](https://developers.reddit.com/docs/): Reddit’s Developer Platform that lets you build powerful apps and experiences to enhance the communities you love.
@@ -56,5 +54,4 @@ In our case we are using webviews so we basically have a totally different appli
 Entry point is `main.tsx`, which renders App like Vite does, INIT_RESPONSE is called from within an useEffect to send a ready message to the Devvit app.
 
 - `HomePage.tsx` shows an example of routing and navigation with the `useSetPage` hook.
-- `PokemonPage.tsx` shows an example of how to send network requests over postMessage.
 - `/components` for reusable components

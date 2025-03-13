@@ -1,5 +1,4 @@
 import { Page } from './shared';
-import { PokemonPage } from './pages/PokemonPage';
 import { HomePage } from './pages/HomePage';
 import { usePage } from './hooks/usePage';
 import { useEffect, useState } from 'react';
@@ -10,8 +9,6 @@ const getPage = (page: Page, { postId }: { postId: string }) => {
   switch (page) {
     case 'home':
       return <HomePage postId={postId} />;
-    case 'pokemon':
-      return <PokemonPage />;
     default:
       throw new Error(`Unknown page: ${page satisfies never}`);
   }
