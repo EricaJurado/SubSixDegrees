@@ -35,3 +35,8 @@ export type DevvitMessage = {
   type: "devvit-message";
   data: { message: BlocksToWebviewMessage };
 };
+
+export type SubredditNode = {
+  name: string;
+  children: SubredditNode[];
+};

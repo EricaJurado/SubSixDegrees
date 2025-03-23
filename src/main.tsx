@@ -3,28 +3,16 @@ import { DEVVIT_SETTINGS_KEYS } from './constants.js';
 import { BlocksToWebviewMessage, WebviewToBlockMessage } from '../game/shared.js';
 import { Preview } from './components/Preview.js';
 
+// Get current username, defaulting to 'anon' if none found
 const getCurrentUsername = async (context: any) => {
   return (await context.reddit.getCurrentUsername()) ?? 'anon';
-};
-
-// Get Subreddit by name
-const getSubredditByName = async (context: any, subredditName: string) => {
-  const subreddit = await context.reddit.getSubredditByName(subredditName);
-  return {
-    id: subreddit.id,
-    name: subreddit.name,
-    description: subreddit.description,
-    subscribers: subreddit.subscribers,
-    url: subreddit.url,
-    nsfw: subreddit.nsfw,
-  };
 };
 
 // Get the stored subreddit graph from Redis
 const getSubredditGraph = async (context: any, postId: string, username: string) => {
   const redisKey = `subredditGraph_${postId}_${username}`;
   const graphData = await context.redis.get(redisKey);
-  return graphData ? JSON.parse(graphData) : {};
+  return graphData ? JSON.parse(graphData) : {}; // Default to empty if no data exists
 };
 
 // Update the graph with a new subreddit connection
@@ -38,10 +26,11 @@ const addSubredditConnection = async (
   const redisKey = `subredditGraph_${postId}_${username}`;
   let graph = await getSubredditGraph(context, postId, username);
 
+  // If the subreddit doesn't exist in the graph, add it
   if (!graph[fromSubreddit]) graph[fromSubreddit] = [];
   if (!graph[toSubreddit]) graph[toSubreddit] = [];
 
-  // Avoid duplicate connections
+  // Avoid duplicate connections between subreddits
   if (!graph[fromSubreddit].includes(toSubreddit)) {
     graph[fromSubreddit].push(toSubreddit);
   }
@@ -49,6 +38,7 @@ const addSubredditConnection = async (
     graph[toSubreddit].push(fromSubreddit);
   }
 
+  // Save the updated graph in Redis
   await context.redis.set(redisKey, JSON.stringify(graph));
 };
 
@@ -96,6 +86,7 @@ Devvit.addCustomPostType({
 
         switch (data.type) {
           case 'INIT':
+            // Send initial data to the webview
             postMessage({
               type: 'INIT_RESPONSE',
               payload: {
@@ -114,8 +105,10 @@ Devvit.addCustomPostType({
               previousSubreddit,
               subreddit
             );
+            // Re-fetch the updated graph
             subredditPath = await getSubredditGraph(context, context.postId!, username);
 
+            // Send the updated subreddit path to the webview
             postMessage({
               type: 'UPDATE_SUBREDDIT_PATH',
               payload: {

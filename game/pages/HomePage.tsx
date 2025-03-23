@@ -1,87 +1,58 @@
-import { ComponentProps, useState } from 'react';
-import { useSetPage } from '../hooks/usePage';
+import { useEffect, useState } from 'react';
+import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
+import { SubredditNode } from '../shared';
 
 export const HomePage = ({ postId }: { postId: string }) => {
-  const setPage = useSetPage();
+  const [subredditPath, setSubredditPath] = useState<SubredditNode>({
+    name: 'start',
+    children: [],
+  });
 
-  const [subredditPath, setSubredditPath] = useState<Record<string, string[]>>({});
-  const [previousSubreddit, setPreviousSubreddit] = useState('start');
-  const [currentSubreddit, setCurrentSubreddit] = useState('start');
+  const [currentSubredditNode, setCurrentSubredditNode] = useState<SubredditNode | null>(null);
+
+  const handleDiscoverSubreddit = (subreddit: string) => {
+    sendToDevvit({
+      type: 'DISCOVER_SUBREDDIT',
+      payload: { subreddit, previousSubreddit: currentSubredditNode?.name || 'start' },
+    });
+
+    setSubredditPath((prev: SubredditNode) => {
+      const updatedPath = { ...prev };
+      let currentNode = currentSubredditNode || updatedPath;
+
+      // traverse and add the new subreddit as child to the curr node
+      const existingNode = currentNode.children.find(
+        (child: SubredditNode) => child.name === subreddit
+      );
+
+      if (!existingNode) {
+        const newSubredditNode: SubredditNode = { name: subreddit, children: [] };
+        currentNode.children.push(newSubredditNode);
+        currentNode = newSubredditNode; // move to newly added node
+      } else {
+        currentNode = existingNode; // move to existing node
+      }
+
+      setCurrentSubredditNode(currentNode); // update curr node
+
+      return updatedPath;
+    });
+  };
+
+  useEffect(() => {
+    console.log(subredditPath);
+  }, [subredditPath]);
 
   return (
     <div>
-      <div />
-
-      <h1>Welcome to Devvit</h1>
-      <p>Let's build something awesome!</p>
       <p>PostId: {postId}</p>
 
-      <button
-        onClick={() => {
-          sendToDevvit({
-            type: 'DISCOVER_SUBREDDIT',
-            payload: { subreddit: 'pokemon', previousSubreddit: '' }, // Add previousSubreddit
-          });
-        }}
-      >
-        Discover Pokemon
-      </button>
+      <button onClick={() => handleDiscoverSubreddit('javascript')}>Go to r/javascript</button>
+      <button onClick={() => handleDiscoverSubreddit('reactjs')}>Go to r/reactjs</button>
+      <button onClick={() => handleDiscoverSubreddit('frontend')}>Go to r/frontend</button>
 
-      <MagicButton
-        onClick={() => {
-          setPage('home');
-        }}
-      >
-        Show me more
-      </MagicButton>
-
-      <button
-        onClick={() => {
-          sendToDevvit({
-            type: 'DISCOVER_SUBREDDIT',
-            payload: { subreddit: 'r/javascript', previousSubreddit: currentSubreddit },
-          });
-          setPreviousSubreddit(currentSubreddit);
-          setCurrentSubreddit('r/javascript');
-        }}
-      >
-        Go to r/javascript
-      </button>
-
-      <button
-        onClick={() => {
-          sendToDevvit({
-            type: 'DISCOVER_SUBREDDIT',
-            payload: { subreddit: 'r/reactjs', previousSubreddit: currentSubreddit },
-          });
-          setPreviousSubreddit(currentSubreddit);
-          setCurrentSubreddit('r/reactjs');
-        }}
-      >
-        Go to r/reactjs
-      </button>
-
-      <button
-        onClick={() => {
-          sendToDevvit({
-            type: 'DISCOVER_SUBREDDIT',
-            payload: { subreddit: 'r/frontend', previousSubreddit: currentSubreddit },
-          });
-          setPreviousSubreddit(currentSubreddit);
-          setCurrentSubreddit('r/frontend');
-        }}
-      >
-        Go to r/frontend
-      </button>
+      <HorizontalTree data={subredditPath} />
     </div>
-  );
-};
-
-const MagicButton = ({ children, ...props }: ComponentProps<'button'>) => {
-  return (
-    <button {...props}>
-      <span>{children}</span>
-    </button>
   );
 };

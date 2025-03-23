@@ -19,6 +19,7 @@
     "tsx": "4.19.3"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "@types/node": "22.13.5",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
