@@ -4,23 +4,52 @@ import { BlocksToWebviewMessage, WebviewToBlockMessage } from '../game/shared.js
 import { Preview } from './components/Preview.js';
 
 const getCurrentUsername = async (context: any) => {
-  console.log('Getting current username');
   return (await context.reddit.getCurrentUsername()) ?? 'anon';
 };
 
-// Fetch path from Redis
-const getSubredditPathFromRedis = async (context: any, username: string) => {
-  const subredditPath = await context.redis.get(`subredditPath_${username}`);
-  console.log('Subreddit path:', subredditPath);
-  return subredditPath ? JSON.parse(subredditPath) : [];
+// Get Subreddit by name
+const getSubredditByName = async (context: any, subredditName: string) => {
+  const subreddit = await context.reddit.getSubredditByName(subredditName);
+  return {
+    id: subreddit.id,
+    name: subreddit.name,
+    description: subreddit.description,
+    subscribers: subreddit.subscribers,
+    url: subreddit.url,
+    nsfw: subreddit.nsfw,
+  };
 };
 
-// Add the new subreddit to the user's path
-const setSubredditPathInRedis = async (context: any, username: string, newSubreddit: string) => {
-  const subredditPath = await getSubredditPathFromRedis(context, username);
-  console.log('Current subreddit path:', subredditPath);
-  subredditPath.push(newSubreddit);
-  await context.redis.set(`subredditPath_${username}`, JSON.stringify(subredditPath)); // Save the new path
+// Get the stored subreddit graph from Redis
+const getSubredditGraph = async (context: any, postId: string, username: string) => {
+  const redisKey = `subredditGraph_${postId}_${username}`;
+  const graphData = await context.redis.get(redisKey);
+  return graphData ? JSON.parse(graphData) : {};
+};
+
+// Update the graph with a new subreddit connection
+const addSubredditConnection = async (
+  context: any,
+  postId: string,
+  username: string,
+  fromSubreddit: string,
+  toSubreddit: string
+) => {
+  const redisKey = `subredditGraph_${postId}_${username}`;
+  let graph = await getSubredditGraph(context, postId, username);
+
+  if (!graph[fromSubreddit]) graph[fromSubreddit] = [];
+  if (!graph[toSubreddit]) graph[toSubreddit] = [];
+
+  // Avoid duplicate connections
+  if (!graph[fromSubreddit].includes(toSubreddit)) {
+    graph[fromSubreddit].push(toSubreddit);
+  }
+  if (!graph[toSubreddit].includes(fromSubreddit)) {
+    graph[toSubreddit].push(fromSubreddit);
+  }
+
+  await context.redis.set(redisKey, JSON.stringify(graph));
 };
 
 // Register Devvit settings
@@ -39,11 +68,13 @@ Devvit.addMenuItem({
   onPress: async (_event, context) => {
     const { reddit, ui } = context;
     const subreddit = await reddit.getCurrentSubreddit();
+
     const post = await reddit.submitPost({
       title: 'My first experience post',
       subredditName: subreddit.name,
       preview: <Preview />,
     });
+
     ui.showToast({ text: 'Created post!' });
     ui.navigateTo(post.url);
   },
@@ -54,13 +85,14 @@ Devvit.addCustomPostType({
   name: 'Experience Post',
   height: 'tall',
   render: (context) => {
-    const { mount } = useWebView<WebviewToBlockMessage, BlocksToWebviewMessage>({
+    // Use the useWebView hook to manage message sending
+    const { postMessage, mount } = useWebView<WebviewToBlockMessage, BlocksToWebviewMessage>({
       onMessage: async (event, { postMessage }) => {
         console.log('Received message', event);
         const data = event as unknown as WebviewToBlockMessage;
 
         const username = await getCurrentUsername(context);
-        let subredditPath = await getSubredditPathFromRedis(context, username);
+        let subredditPath = await getSubredditGraph(context, context.postId!, username);
 
         switch (data.type) {
           case 'INIT':
@@ -74,9 +106,15 @@ Devvit.addCustomPostType({
             break;
 
           case 'DISCOVER_SUBREDDIT':
-            const newSubreddit = data.payload.subreddit;
-            await setSubredditPathInRedis(context, username, newSubreddit);
-            subredditPath = await getSubredditPathFromRedis(context, username); // Update the path
+            const { subreddit, previousSubreddit } = data.payload;
+            await addSubredditConnection(
+              context,
+              context.postId!,
+              username,
+              previousSubreddit,
+              subreddit
+            );
+            subredditPath = await getSubredditGraph(context, context.postId!, username);
 
             postMessage({
               type: 'UPDATE_SUBREDDIT_PATH',
@@ -85,6 +123,7 @@ Devvit.addCustomPostType({
               },
             });
             break;
+
           default:
             console.error('Unknown message type', data satisfies never);
             break;
@@ -94,13 +133,7 @@ Devvit.addCustomPostType({
 
     return (
       <vstack height="100%" width="100%" alignment="center middle">
-        <button
-          onPress={() => {
-            mount();
-          }}
-        >
-          Launch
-        </button>
+        <button onPress={() => mount()}>Launch WebView</button>
       </vstack>
     );
   },
