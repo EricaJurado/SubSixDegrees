@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
-import { SubredditNode } from '../shared';
+import { RedditPost, SubredditNode } from '../shared';
 import { useDevvitListener } from '../hooks/useDevvitListener';
 import SubredditFeed from '../components/SubredditFeed';
 
@@ -61,7 +61,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
   };
 
   const subredditfeed = useDevvitListener('SUBREDDIT_FEED');
-  const [subredditPosts, setSubredditPosts] = useState<any[]>([]);
+  const [subredditPosts, setSubredditPosts] = useState<RedditPost[]>([]);
 
   const [comments, setComments] = useState<any[]>([]);
   const commentsData = useDevvitListener('POST_COMMENTS');
@@ -78,7 +78,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
     console.log(subredditfeed);
     if (subredditfeed) {
       setSubredditPosts(subredditfeed.posts);
-      getPostComments(subredditfeed.posts[0].postId);
+      console.log(subredditfeed.posts);
+      // getPostComments(subredditfeed.posts[0].postId);
     }
   }, [subredditfeed]);
 
@@ -97,13 +98,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       <button onClick={() => handleDiscoverSubreddit('reactjs')}>Go to r/reactjs</button>
       <button onClick={() => handleDiscoverSubreddit('frontend')}>Go to r/frontend</button>
 
-      {subredditPosts.map((post, index) => (
-        <div key={index}>
-          <p>{post.title}</p>
-          <p>{post.body}</p>
-        </div>
-      ))}
-      {/* {subredditfeed && <SubredditFeed subreddit="javascript" feedData={subredditfeed} />} */}
+      {subredditPosts && <SubredditFeed subreddit="javascript" feedData={subredditPosts} />}
       <HorizontalTree data={subredditPath} />
     </div>
   );

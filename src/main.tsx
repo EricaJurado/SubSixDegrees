@@ -1,8 +1,9 @@
 import { Devvit, RedditAPIClient, useWebView } from '@devvit/public-api';
 import { DEVVIT_SETTINGS_KEYS } from './constants.js';
-import { BlocksToWebviewMessage, WebviewToBlockMessage } from '../game/shared.js';
+import { BlocksToWebviewMessage, RedditPost, WebviewToBlockMessage } from '../game/shared.js';
 import { Preview } from './components/Preview.js';
 import { RedditService } from '../server/RedditService.js';
+import { timeAgo } from './utils.js';
 
 // Get current username, defaulting to 'anon' if none found
 const getCurrentUsername = async (context: any) => {
@@ -100,13 +101,15 @@ Devvit.addCustomPostType({
 
           case 'GET_SUBREDDIT_FEED':
             const test = await redditAPI.getTopPosts('memes');
-            console.log(test[0].secureMedia);
-            const formattedPosts = test.map((post) => ({
+            console.log(test[0].createdAt);
+            const formattedPosts: RedditPost[] = test.map((post) => ({
               postId: post.id,
               title: post.title,
-              body: post.body,
-              bodyHtml: post.thumbnail,
+              authorName: post.authorName,
+              createdAt: timeAgo(post.createdAt),
               nsfw: post.nsfw,
+              score: post.score,
+              numberOfComments: post.numberOfComments,
             }));
 
             postMessage({

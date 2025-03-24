@@ -49,3 +49,24 @@ export type SubredditNode = {
   name: string;
   children: SubredditNode[];
 };
+
+export type thumbnail = {
+  url: string;
+  width: number;
+  height: number;
+};
+
+export interface RedditPost {
+  postId: string;
+  title: string;
+  authorName: string;
+  createdAt: string; // time ago
+  nsfw: boolean;
+  score: number;
+  numberOfComments: number;
+}
+
+export interface SubredditFeedProps {
+  subreddit: string;
+  feedData: RedditPost[];
+}
