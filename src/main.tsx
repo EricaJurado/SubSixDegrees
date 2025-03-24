@@ -1,7 +1,8 @@
-import { Devvit, useWebView } from '@devvit/public-api';
+import { Devvit, RedditAPIClient, useWebView } from '@devvit/public-api';
 import { DEVVIT_SETTINGS_KEYS } from './constants.js';
 import { BlocksToWebviewMessage, WebviewToBlockMessage } from '../game/shared.js';
 import { Preview } from './components/Preview.js';
+import { RedditService } from '../server/RedditService.js';
 
 // Get current username, defaulting to 'anon' if none found
 const getCurrentUsername = async (context: any) => {
@@ -76,6 +77,7 @@ Devvit.addCustomPostType({
   height: 'tall',
   render: (context) => {
     // Use the useWebView hook to manage message sending
+    const redditAPI = new RedditService(context);
     const { postMessage, mount } = useWebView<WebviewToBlockMessage, BlocksToWebviewMessage>({
       onMessage: async (event, { postMessage }) => {
         console.log('Received message', event);
@@ -96,29 +98,25 @@ Devvit.addCustomPostType({
             });
             break;
 
-          case 'DISCOVER_SUBREDDIT':
-            const { subreddit, previousSubreddit } = data.payload;
-            await addSubredditConnection(
-              context,
-              context.postId!,
-              username,
-              previousSubreddit,
-              subreddit
-            );
-            // Re-fetch the updated graph
-            subredditPath = await getSubredditGraph(context, context.postId!, username);
+          case 'GET_SUBREDDIT_FEED':
+            const test = await redditAPI.getTopPosts('memes');
+            console.log('test', test);
+            const formattedPosts = test.map((post) => ({
+              title: post.title,
+              body: post.body,
+              nsfw: post.nsfw,
+            }));
 
-            // Send the updated subreddit path to the webview
             postMessage({
-              type: 'UPDATE_SUBREDDIT_PATH',
+              type: 'SUBREDDIT_FEED',
               payload: {
-                subredditPath: subredditPath,
+                posts: formattedPosts,
               },
             });
             break;
 
           default:
-            console.error('Unknown message type', data satisfies never);
+            console.error('Unknown message type');
             break;
         }
       },

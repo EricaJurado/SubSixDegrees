@@ -6,7 +6,10 @@ export type WebviewToBlockMessage =
   | {
       type: "DISCOVER_SUBREDDIT";
       payload: { subreddit: string, previousSubreddit: string };
-    };
+    }
+  | { type: "GET_SUBREDDIT_FEED";
+    payload: { subredditName: string };
+  };
 
 export type BlocksToWebviewMessage =
   | {
@@ -28,7 +31,9 @@ export type BlocksToWebviewMessage =
         subreddit: string;
         previousSubreddit: string;
       };
-    };
+    }
+    | {type: "SUBREDDIT_FEED", payload: { posts: any[] }}
+    | {type: "testing", payload: { posts: string }};
 
 
 export type DevvitMessage = {

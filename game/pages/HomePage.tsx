@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
 import { SubredditNode } from '../shared';
+import { useDevvitListener } from '../hooks/useDevvitListener';
+import SubredditFeed from '../components/SubredditFeed';
 
 export const HomePage = ({ postId }: { postId: string }) => {
   const [subredditPath, setSubredditPath] = useState<SubredditNode>({
@@ -40,9 +42,28 @@ export const HomePage = ({ postId }: { postId: string }) => {
     });
   };
 
+  const getSubredditFeed = async (subreddit: string) => {
+    sendToDevvit({
+      type: 'GET_SUBREDDIT_FEED',
+      payload: {
+        subredditName: subreddit,
+      },
+    });
+  };
+
+  const subredditfeed = useDevvitListener('SUBREDDIT_FEED');
+
+  useEffect(() => {
+    getSubredditFeed('javascript');
+  }, [currentSubredditNode]);
+
   useEffect(() => {
     console.log(subredditPath);
   }, [subredditPath]);
+
+  useEffect(() => {
+    console.log(subredditfeed);
+  }, [subredditfeed]);
 
   return (
     <div>
@@ -52,6 +73,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       <button onClick={() => handleDiscoverSubreddit('reactjs')}>Go to r/reactjs</button>
       <button onClick={() => handleDiscoverSubreddit('frontend')}>Go to r/frontend</button>
 
+      {/* {subredditfeed && <SubredditFeed subreddit="javascript" feedData={subredditfeed} />} */}
       <HorizontalTree data={subredditPath} />
     </div>
   );
