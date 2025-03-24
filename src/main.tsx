@@ -100,10 +100,12 @@ Devvit.addCustomPostType({
 
           case 'GET_SUBREDDIT_FEED':
             const test = await redditAPI.getTopPosts('memes');
-            console.log('test', test);
+            console.log(test[0].secureMedia);
             const formattedPosts = test.map((post) => ({
+              postId: post.id,
               title: post.title,
               body: post.body,
+              bodyHtml: post.thumbnail,
               nsfw: post.nsfw,
             }));
 
@@ -111,6 +113,23 @@ Devvit.addCustomPostType({
               type: 'SUBREDDIT_FEED',
               payload: {
                 posts: formattedPosts,
+              },
+            });
+            break;
+
+          case 'GET_POST_COMMENTS':
+            const comments = await redditAPI.getPostComments(data.payload.postId);
+            const formattedComments = comments.map((comment) => ({
+              postId: comment.id,
+              body: comment.body,
+              authorId: comment.authorId,
+              authorName: comment.authorName,
+            }));
+            console.log(formattedComments);
+            postMessage({
+              type: 'POST_COMMENTS',
+              payload: {
+                comments: formattedComments,
               },
             });
             break;

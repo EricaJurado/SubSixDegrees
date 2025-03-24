@@ -51,7 +51,20 @@ export const HomePage = ({ postId }: { postId: string }) => {
     });
   };
 
+  const getPostComments = async (postId: string) => {
+    sendToDevvit({
+      type: 'GET_POST_COMMENTS',
+      payload: {
+        postId,
+      },
+    });
+  };
+
   const subredditfeed = useDevvitListener('SUBREDDIT_FEED');
+  const [subredditPosts, setSubredditPosts] = useState<any[]>([]);
+
+  const [comments, setComments] = useState<any[]>([]);
+  const commentsData = useDevvitListener('POST_COMMENTS');
 
   useEffect(() => {
     getSubredditFeed('javascript');
@@ -63,7 +76,18 @@ export const HomePage = ({ postId }: { postId: string }) => {
 
   useEffect(() => {
     console.log(subredditfeed);
+    if (subredditfeed) {
+      setSubredditPosts(subredditfeed.posts);
+      getPostComments(subredditfeed.posts[0].postId);
+    }
   }, [subredditfeed]);
+
+  useEffect(() => {
+    console.log(commentsData);
+    if (commentsData) {
+      setComments(commentsData.comments);
+    }
+  }, [commentsData]);
 
   return (
     <div>
@@ -73,6 +97,12 @@ export const HomePage = ({ postId }: { postId: string }) => {
       <button onClick={() => handleDiscoverSubreddit('reactjs')}>Go to r/reactjs</button>
       <button onClick={() => handleDiscoverSubreddit('frontend')}>Go to r/frontend</button>
 
+      {subredditPosts.map((post, index) => (
+        <div key={index}>
+          <p>{post.title}</p>
+          <p>{post.body}</p>
+        </div>
+      ))}
       {/* {subredditfeed && <SubredditFeed subreddit="javascript" feedData={subredditfeed} />} */}
       <HorizontalTree data={subredditPath} />
     </div>

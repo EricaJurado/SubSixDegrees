@@ -52,8 +52,8 @@ export class RedditService {
       const comments = await this.reddit
   .getComments({
     postId: postId,
-    limit: 1000,
-    pageSize: 100,
+    limit: 10,
+    pageSize: 10,
   })
   .all();
       return comments;

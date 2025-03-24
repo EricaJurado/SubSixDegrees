@@ -9,6 +9,9 @@ export type WebviewToBlockMessage =
     }
   | { type: "GET_SUBREDDIT_FEED";
     payload: { subredditName: string };
+  }
+  | { type: "GET_POST_COMMENTS";
+    payload: { postId: string };
   };
 
 export type BlocksToWebviewMessage =
@@ -33,7 +36,8 @@ export type BlocksToWebviewMessage =
       };
     }
     | {type: "SUBREDDIT_FEED", payload: { posts: any[] }}
-    | {type: "testing", payload: { posts: string }};
+    | {type: "testing", payload: { posts: string }}
+    | {type: "POST_COMMENTS", payload: { comments: any[] }};
 
 
 export type DevvitMessage = {
