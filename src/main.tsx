@@ -100,16 +100,20 @@ Devvit.addCustomPostType({
             break;
 
           case 'GET_SUBREDDIT_FEED':
-            const test = await redditAPI.getTopPosts('memes');
-            console.log(test[0].createdAt);
+            const test = await redditAPI.getTopPosts(data.payload.subredditName);
+            console.log(test[0]);
             const formattedPosts: RedditPost[] = test.map((post) => ({
               postId: post.id,
               title: post.title,
               authorName: post.authorName,
+              body: post.body,
+              bodyHtml: post.bodyHtml,
               createdAt: timeAgo(post.createdAt),
               nsfw: post.nsfw,
               score: post.score,
               numberOfComments: post.numberOfComments,
+              thumbnail: post.thumbnail,
+              secureMedia: post.secureMedia,
             }));
 
             postMessage({
@@ -127,12 +131,23 @@ Devvit.addCustomPostType({
               body: comment.body,
               authorId: comment.authorId,
               authorName: comment.authorName,
+              snoovatarURL: comment.snoovatarURL,
             }));
             console.log(formattedComments);
             postMessage({
               type: 'POST_COMMENTS',
               payload: {
                 comments: formattedComments,
+              },
+            });
+            break;
+
+          case 'GET_USER_BY_USERNAME':
+            const user = await redditAPI.getUserByUsername(data.payload.username);
+            postMessage({
+              type: 'USER_BY_USERNAME',
+              payload: {
+                user: user,
               },
             });
             break;

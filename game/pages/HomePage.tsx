@@ -4,6 +4,7 @@ import { sendToDevvit } from '../utils';
 import { RedditPost, SubredditNode } from '../shared';
 import { useDevvitListener } from '../hooks/useDevvitListener';
 import SubredditFeed from '../components/SubredditFeed';
+import RedditUserFeed from '../components/UserFeed';
 
 export const HomePage = ({ postId }: { postId: string }) => {
   const [subredditPath, setSubredditPath] = useState<SubredditNode>({
@@ -37,6 +38,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       }
 
       setCurrentSubredditNode(currentNode); // update curr node
+      getSubredditFeed(subreddit);
 
       return updatedPath;
     });
@@ -60,15 +62,24 @@ export const HomePage = ({ postId }: { postId: string }) => {
     });
   };
 
+  const getUserByUsername = async (username: string) => {
+    sendToDevvit({
+      type: 'GET_USER_BY_USERNAME',
+      payload: {
+        username,
+      },
+    });
+  };
+
   const subredditfeed = useDevvitListener('SUBREDDIT_FEED');
   const [subredditPosts, setSubredditPosts] = useState<RedditPost[]>([]);
 
   const [comments, setComments] = useState<any[]>([]);
   const commentsData = useDevvitListener('POST_COMMENTS');
 
-  useEffect(() => {
-    getSubredditFeed('javascript');
-  }, [currentSubredditNode]);
+  // useEffect(() => {
+  //   getSubredditFeed('javascript');
+  // }, [currentSubredditNode]);
 
   useEffect(() => {
     console.log(subredditPath);
@@ -90,6 +101,29 @@ export const HomePage = ({ postId }: { postId: string }) => {
     }
   }, [commentsData]);
 
+  const [currUser, setCurrUser] = useState<string | null>(null);
+  const userByUsername = useDevvitListener('USER_BY_USERNAME');
+  const [currUserObject, setCurrUserObject] = useState<any | null>(null);
+
+  const handleItemClick = (type: 'subreddit' | 'user', name: string) => {
+    if (type === 'subreddit') {
+      handleDiscoverSubreddit(name);
+      getSubredditFeed(name);
+    } else if (type === 'user') {
+      console.log(`Fetching posts for user: ${name}`);
+      setCurrUser(name);
+      getUserByUsername(name);
+      // You can implement a function to fetch user posts here.
+    }
+  };
+
+  useEffect(() => {
+    if (userByUsername) {
+      console.log(userByUsername);
+      setCurrUserObject(userByUsername.user);
+    }
+  }, [userByUsername]);
+
   return (
     <div>
       <p>PostId: {postId}</p>
@@ -98,7 +132,25 @@ export const HomePage = ({ postId }: { postId: string }) => {
       <button onClick={() => handleDiscoverSubreddit('reactjs')}>Go to r/reactjs</button>
       <button onClick={() => handleDiscoverSubreddit('frontend')}>Go to r/frontend</button>
 
-      {subredditPosts && <SubredditFeed subreddit="javascript" feedData={subredditPosts} />}
+      {subredditPosts && (
+        <SubredditFeed
+          subreddit="javascript"
+          feedData={subredditPosts}
+          onItemClick={handleItemClick}
+        />
+      )}
+
+      {currUserObject && (
+        <RedditUserFeed
+          redditUser={{
+            username: currUserObject.username,
+            id: currUserObject.id,
+            snoovatarUrl: currUserObject.snoovatarUrl,
+            isAdmin: currUserObject.isAdmin,
+            nsfw: currUserObject.nsfw,
+          }}
+        />
+      )}
       <HorizontalTree data={subredditPath} />
     </div>
   );

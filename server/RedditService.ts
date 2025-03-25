@@ -62,4 +62,17 @@ export class RedditService {
       throw error;
     }
   }
+
+  // Get user details by username
+  async getUserByUsername(username: string): Promise<any> {
+    try {
+      const user = await this.reddit.getUserByUsername(username);
+      const snoovatarUrl = await this.reddit.getSnoovatarUrl(username);
+      const userWithSnoovatar = { ...user, snoovatarUrl };
+      return userWithSnoovatar;
+    } catch (error) {
+      console.error(`Error fetching user data for ${username}: ${error}`);
+      throw error;
+    }
+  }
 }
