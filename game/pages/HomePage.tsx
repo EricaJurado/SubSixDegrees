@@ -1,136 +1,44 @@
 import { use, useEffect, useRef, useState } from 'react';
 import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
-import { RedditPost, Node, Subreddit } from '../shared';
+import { RedditPost, Node } from '../shared';
 import { useDevvitListener } from '../hooks/useDevvitListener';
 import RedditUserFeed from '../components/UserFeed';
 import SubredditFeed from '../pages/SubredditFeed';
 import Post from '../components/Post';
 import dailyChallenges from '../dailyChallenges.json';
-import svg64 from 'svg64';
-import { image } from 'd3';
 
 export const HomePage = ({ postId }: { postId: string }) => {
-  // get today's date and get the corresponding dailyChallenge
+  // Get today's challenge
   const today = new Date().toLocaleDateString();
-  const allChallenges = dailyChallenges as Record<string, string[]>;
-  const todaysChallenge = allChallenges[today];
-  const startSubreddit = todaysChallenge[0];
-  const targetSubreddit = todaysChallenge[1];
+  const challenges = dailyChallenges as Record<string, string[]>;
+  const [startSubreddit, targetSubreddit] = challenges[today] || [];
 
+  // State management
   const [subredditPath, setSubredditPath] = useState<Node>({
     name: startSubreddit,
     type: 'subreddit',
     id: startSubreddit.toLowerCase(),
     children: [],
-    isLeafDuplicate: false, // if new node is a duplicate of an existing node, still add as leaf but don't add children to it
+    isLeafDuplicate: false,
   });
   const [currentNode, setCurrentNode] = useState<Node | null>(null);
-  const [currentSubredditNode, setCurrentSubredditNode] = useState<Node | null>(null);
   const [subredditPosts, setSubredditPosts] = useState<RedditPost[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [currUser, setCurrUser] = useState<string | null>(null);
-  const [currUserObject, setCurrUserObject] = useState<any | null>(null);
   const [currentPost, setCurrentPost] = useState<RedditPost | null>(null);
+  const [prepImageForComment, setPrepImageForComment] = useState(false);
+  const [hasWon, setHasWon] = useState(false);
   const [view, setView] = useState<'subreddit' | 'post' | 'user'>('subreddit');
+  const ref = useRef<SVGSVGElement | null>(null);
 
+  // Devvit event listeners
   const subredditFeedData = useDevvitListener('SUBREDDIT_FEED');
   const commentsData = useDevvitListener('POST_COMMENTS');
   const userByUsername = useDevvitListener('USER_BY_USERNAME');
   const player = useDevvitListener('PLAYER');
 
-  useEffect(() => {
-    console.log('subredditFeedData:', subredditFeedData);
-  }, [subredditFeedData]);
-
-  useEffect(() => {
-    console.log('commentsData:', commentsData);
-  }, [commentsData]);
-
-  useEffect(() => {
-    console.log('userByUsername:', userByUsername);
-  }, [userByUsername]);
-
-  useEffect(() => {
-    console.log('player:', player);
-  }, [player]);
-
-  const sendRequest = (message: {
-    type:
-      | 'GET_SUBREDDIT_FEED'
-      | 'GET_POST_COMMENTS'
-      | 'GET_USER_BY_USERNAME'
-      | 'DISCOVER_SUBREDDIT'
-      | 'COMMENT_ON_POST';
-    payload: any;
-  }) => {
-    sendToDevvit(message);
-  };
-
-  const getSubredditFeed = (subreddit: string) =>
-    sendRequest({ type: 'GET_SUBREDDIT_FEED', payload: { subredditName: subreddit } });
-
-  const getPostComments = (postId: string) =>
-    sendRequest({ type: 'GET_POST_COMMENTS', payload: { postId } });
-
-  const getUserByUsername = (username: string) =>
-    sendRequest({ type: 'GET_USER_BY_USERNAME', payload: { username } });
-
-  const findNode = (node: Node, id: string, type: string): Node | null => {
-    if (node.id === id && node.type === type) return node;
-    for (const child of node.children) {
-      const found = findNode(child, id, type);
-      if (found) return found;
-    }
-    return null;
-  };
-
-  const insertNode = (root: Node, parent: Node, newNode: Node): Node => {
-    const existingNode = findNode(root, newNode.id.toLowerCase(), newNode.type);
-    if (existingNode) {
-      parent.children.push({ ...newNode, isLeafDuplicate: true, children: [] });
-      return existingNode;
-    } else {
-      parent.children.push(newNode);
-      return newNode;
-    }
-  };
-
-  const handleItemClick = (type: 'subreddit' | 'user' | 'post', name: string, id: string) => {
-    let parentNode = currentNode || subredditPath;
-
-    if (type === 'subreddit') {
-      sendRequest({
-        type: 'DISCOVER_SUBREDDIT',
-        payload: { subreddit: name, previousSubreddit: parentNode.name },
-      });
-    }
-
-    const newNode: Node = { name, type, id: id.toLowerCase(), children: [] };
-
-    setSubredditPath((prev) => {
-      const updatedTree = { ...prev };
-      const selectedNode = insertNode(updatedTree, parentNode, newNode);
-      setCurrentNode(selectedNode);
-      return updatedTree;
-    });
-
-    setCurrentSubredditNode(newNode);
-
-    if (type === 'subreddit') {
-      getSubredditFeed(name);
-      setView('subreddit');
-    } else if (type === 'user') {
-      setCurrUser(name);
-      getUserByUsername(name);
-      setView('user');
-    } else if (type === 'post') {
-      setCurrentPost(subredditPosts.find((p) => p.postId === name) || null);
-      getPostComments(name);
-      setView('post');
-    }
-  };
-
+  // Update states based on Devvit responses
   useEffect(() => {
     if (subredditFeedData) setSubredditPosts(subredditFeedData.posts || []);
   }, [subredditFeedData]);
@@ -140,82 +48,118 @@ export const HomePage = ({ postId }: { postId: string }) => {
   }, [commentsData]);
 
   useEffect(() => {
-    if (userByUsername) setCurrUserObject(userByUsername.user || null);
+    if (userByUsername) setCurrUser(userByUsername.user?.username || null);
   }, [userByUsername]);
 
-  const teleportToNode = (node: Node) => {
-    setCurrentNode(node);
-    if (node.type === 'subreddit') {
-      getSubredditFeed(node.name);
+  // Send request to Devvit
+  const sendRequest = (message: {
+    type:
+      | 'DISCOVER_SUBREDDIT'
+      | 'INIT'
+      | 'GET_SUBREDDIT_FEED'
+      | 'GET_POST_COMMENTS'
+      | 'GET_USER_BY_USERNAME'
+      | 'COMMENT_ON_POST';
+    payload: any;
+  }) => {
+    sendToDevvit(message);
+  };
+
+  // Navigation handling
+  const handleItemClick = (type: 'subreddit' | 'user' | 'post', name: string, id: string) => {
+    const newNode: Node = { name, type, id: id.toLowerCase(), children: [] };
+    setSubredditPath((prev) => {
+      const updatedTree = { ...prev, children: [...prev.children, newNode] };
+      setCurrentNode(newNode);
+      return updatedTree;
+    });
+
+    // Handle sending the correct request based on the item type
+    if (type === 'subreddit') {
+      // Send the "DISCOVER_SUBREDDIT" request with appropriate payload
+      sendRequest({
+        type: 'DISCOVER_SUBREDDIT',
+        payload: { subreddit: name, previousSubreddit: currentNode?.name },
+      });
+      sendRequest({
+        type: 'GET_SUBREDDIT_FEED',
+        payload: { subredditName: name },
+      });
       setView('subreddit');
-    } else if (node.type === 'user') {
-      setCurrUser(node.name);
-      getUserByUsername(node.name);
+    } else if (type === 'user') {
+      setCurrUser(name);
+      // Send the "GET_USER_BY_USERNAME" request
+      sendRequest({
+        type: 'GET_USER_BY_USERNAME',
+        payload: { username: name },
+      });
       setView('user');
-    } else if (node.type === 'post') {
-      setCurrentPost(subredditPosts.find((p) => p.postId === node.name) || null);
-      getPostComments(node.name);
+    } else if (type === 'post') {
+      setCurrentPost(subredditPosts.find((p) => p.postId === name) || null);
+      // Send the "GET_POST_COMMENTS" request
+      sendRequest({
+        type: 'GET_POST_COMMENTS',
+        payload: { postId: name },
+      });
       setView('post');
     }
   };
 
-  const handleNodeClick = (node: Node) => {
-    console.log('Node clicked:', node);
-    teleportToNode(node);
-  };
-
+  // Check for win condition
   useEffect(() => {
-    if (currentNode?.id.toString() === targetSubreddit.toLowerCase()) {
+    if (currentNode?.id.toLowerCase() === targetSubreddit.toLowerCase()) {
       console.log('WIN!!!!');
+      setHasWon(true);
     }
   }, [currentNode]);
 
-  const ref = useRef<SVGSVGElement | null>(null);
+  useEffect(() => {
+    console.log(hasWon);
+    if (hasWon && prepImageForComment) {
+      const convertToPng = async () => {
+        if (!ref.current) return;
 
-  const testCommentTrigger = async () => {
-    console.log('Triggering test comment');
-    if (!ref.current) {
-      console.log('Ref is null or undefined');
-      return;
+        // Get the SVG data
+        const svgString = new XMLSerializer().serializeToString(ref.current);
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+
+        // Load into an Image
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = ref.current!.clientWidth;
+          canvas.height = ref.current!.clientHeight;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+
+          ctx.drawImage(img, 0, 0);
+          // setBase64(canvas.toDataURL('image/png')); // Convert to Base64
+          const base64OfSVG = canvas.toDataURL('image/png');
+          sendRequest({
+            type: 'COMMENT_ON_POST',
+            payload: {
+              postId: postId,
+              comment: 'This is a test comment',
+              base64Image: base64OfSVG,
+            },
+          });
+          URL.revokeObjectURL(url); // Clean up
+        };
+        img.src = url;
+        return img;
+      };
+
+      convertToPng();
     }
-
-    const pngVersion = await convertToPng();
-  };
-
-  const convertToPng = async () => {
-    if (!ref.current) return;
-
-    // Get the SVG data
-    const svgString = new XMLSerializer().serializeToString(ref.current);
-    const blob = new Blob([svgString], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(blob);
-
-    // Load into an Image
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = ref.current!.clientWidth;
-      canvas.height = ref.current!.clientHeight;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      ctx.drawImage(img, 0, 0);
-      // setBase64(canvas.toDataURL('image/png')); // Convert to Base64
-      const base64OfSVG = canvas.toDataURL('image/png');
-      sendRequest({
-        type: 'COMMENT_ON_POST',
-        payload: { postId: postId, comment: 'This is a test comment', base64Image: base64OfSVG },
-      });
-      URL.revokeObjectURL(url); // Clean up
-    };
-    img.src = url;
-    return img;
-  };
+  }, [hasWon, prepImageForComment]);
 
   return (
     <div>
-      <button onClick={testCommentTrigger}>Test Comment</button>
-      <p>PostId: {postId}</p>
+      {hasWon && <h1>You won!</h1>}
+      {hasWon && (
+        <button onClick={() => setPrepImageForComment(true)}>Prepare image for comment</button>
+      )}
       <button onClick={() => handleItemClick('subreddit', 'javascript', 'test')}>
         Go to r/javascript
       </button>
@@ -238,14 +182,14 @@ export const HomePage = ({ postId }: { postId: string }) => {
         />
       )}
 
-      {view === 'user' && currUserObject && (
+      {view === 'user' && currUser && userByUsername && (
         <RedditUserFeed
           redditUser={{
-            username: currUserObject.username,
-            id: currUserObject.id,
-            snoovatarUrl: currUserObject.snoovatarUrl,
-            isAdmin: currUserObject.isAdmin,
-            nsfw: currUserObject.nsfw,
+            username: currUser,
+            id: userByUsername.user?.id || '',
+            snoovatarUrl: userByUsername.user?.snoovatarUrl || '',
+            isAdmin: userByUsername.user?.isAdmin || false,
+            nsfw: userByUsername.user?.nsfw || false,
           }}
         />
       )}
@@ -256,7 +200,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
 
       <HorizontalTree
         data={subredditPath}
-        handleNodeClick={handleNodeClick}
+        handleNodeClick={setCurrentNode}
         currentNode={currentNode}
         snoovatarUrl={player?.snoovatarUrl}
         ref={ref}

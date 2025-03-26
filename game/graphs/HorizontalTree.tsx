@@ -7,6 +7,7 @@ interface HorizontalTreeProps {
   handleNodeClick: (node: Node) => void;
   currentNode?: Node | null;
   snoovatarUrl?: string; // User's snoovatar URL
+  prepImageForComment?: boolean;
   ref: any;
 }
 
@@ -22,6 +23,7 @@ const HorizontalTree = ({
   handleNodeClick,
   currentNode,
   snoovatarUrl,
+  prepImageForComment, // used to make sure snoo doesn't show up as broken image in comment
   ref,
 }: HorizontalTreeProps) => {
   const drawTree = (treeData: any) => {
@@ -163,7 +165,10 @@ const HorizontalTree = ({
         console.log(snoovatarUrl);
         currentElement
           .append('image')
-          .attr('xlink:href', 'defaultSnoo.png')
+          .attr(
+            'xlink:href',
+            prepImageForComment && snoovatarUrl ? snoovatarUrl : 'defaultSnoo.png'
+          )
           .attr('width', 40)
           .attr('height', 40)
           .attr('x', -20) // Centering the image
