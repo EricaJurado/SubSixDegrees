@@ -54,6 +54,13 @@ export type SubredditNode = {
   children: SubredditNode[];
 };
 
+export type Node = {
+  name: string;
+  id: string;
+  type: ('subreddit' | 'user' | 'post');
+  children: Node[];
+};
+
 export type thumbnail = {
   url: string;
   width: number;
@@ -83,7 +90,7 @@ export interface RedditPost {
 export interface SubredditFeedProps {
   subreddit: string;
   feedData: RedditPost[];
-  onItemClick: (type: 'subreddit' | 'user', name: string) => void;
+  onItemClick: (type: 'subreddit' | 'user' | 'post', name: string, id: string) => void;
 }
 
 export type redditUser = {

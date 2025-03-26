@@ -1,9 +1,9 @@
 import { useEffect, useCallback, useRef } from 'react';
 import * as d3 from 'd3';
-import { SubredditNode } from '../shared';
+import { Node } from '../shared';
 
 interface HorizontalTreeProps {
-  data: SubredditNode;
+  data: Node;
 }
 
 const width = 900;

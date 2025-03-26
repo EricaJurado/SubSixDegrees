@@ -144,6 +144,7 @@ Devvit.addCustomPostType({
 
           case 'GET_USER_BY_USERNAME':
             const user = await redditAPI.getUserByUsername(data.payload.username);
+            console.log(user);
             postMessage({
               type: 'USER_BY_USERNAME',
               payload: {
