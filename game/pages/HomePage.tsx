@@ -58,6 +58,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       setCurrentSubredditNode(currentNode);
       getSubredditFeed(subreddit);
       console.log(updatedPath);
+      setView('subreddit');
       return updatedPath;
     });
   };
@@ -84,7 +85,6 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const handleItemClick = (type: 'subreddit' | 'user' | 'post', name: string, id: string) => {
     if (type === 'subreddit') {
       handleDiscoverSubreddit(name, id);
-      setView('subreddit');
     } else if (type === 'user') {
       setCurrUser(name);
       getUserByUsername(name);
@@ -96,6 +96,10 @@ export const HomePage = ({ postId }: { postId: string }) => {
       setView('post');
     }
   };
+
+  useEffect(() => {
+    console.log('view:', view);
+  }, [view]);
 
   return (
     <div>
