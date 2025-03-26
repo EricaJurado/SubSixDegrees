@@ -129,6 +129,7 @@ const HorizontalTree = ({ data }: HorizontalTreeProps) => {
     node
       .append('circle')
       .attr('r', 5)
+      .attr('fill', (d: any) => (d.data?.isLeafDuplicate ? 'black' : 'green'))
       .on('click', function (event: MouseEvent, d: any) {
         handleClickOnEntity(event, d);
       });

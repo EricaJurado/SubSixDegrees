@@ -5,8 +5,6 @@
 }
 
 .node circle {
-  fill: #004cae;
-  stroke: #004cae;
   stroke-width: 2px;
   cursor: pointer;
 }

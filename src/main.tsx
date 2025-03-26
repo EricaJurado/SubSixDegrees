@@ -102,9 +102,7 @@ Devvit.addCustomPostType({
           case 'GET_SUBREDDIT_FEED':
             const test = await redditAPI.getTopPosts(data.payload.subredditName);
             const subreddit = await redditAPI.getSubredditDetails(data.payload.subredditName);
-            console.log(subreddit);
 
-            console.log(test[0]);
             const formattedPosts: RedditPost[] = test.map((post) => ({
               postId: post.id,
               title: post.title,
@@ -143,7 +141,6 @@ Devvit.addCustomPostType({
               authorName: comment.authorName,
               snoovatarURL: comment.snoovatarURL,
             }));
-            console.log(formattedComments);
             postMessage({
               type: 'POST_COMMENTS',
               payload: {
@@ -154,7 +151,6 @@ Devvit.addCustomPostType({
 
           case 'GET_USER_BY_USERNAME':
             const user = await redditAPI.getUserByUsername(data.payload.username);
-            console.log(user);
             postMessage({
               type: 'USER_BY_USERNAME',
               payload: {

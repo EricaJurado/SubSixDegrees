@@ -3,11 +3,6 @@ import PostPreview from '../components/PostPreview';
 import { SubredditFeedProps } from '../shared';
 import Markdown from 'markdown-to-jsx';
 
-// testing click function
-const printHelloWorld = (subredditName: string) => {
-  console.log(`Hello from ${subredditName}`);
-};
-
 // Function to convert the description with subreddit mentions into an HTML string
 const replaceSubredditWithLinks = (text: string) => {
   // Replace r/subreddit mentions with <a> tags
@@ -15,9 +10,8 @@ const replaceSubredditWithLinks = (text: string) => {
   return text.replace(regex, (match) => {
     const subredditName = match.slice(2); // Remove the "r/" part
     // Check if subredditName is valid (not undefined or empty)
-    console.log(subredditName);
     if (subredditName) {
-      return `<a href="#" class="subreddit-button" data-subreddit="${subredditName}">${match}</a>`;
+      return ` <a href="#" class="subreddit-button" data-subreddit="${subredditName}">${match}</a> `;
     } else {
       // If subredditName is invalid, just return it as plain text or wrap it in a <span>
       return `<span>${match}</span>`;

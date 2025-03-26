@@ -54,6 +54,7 @@ export type Node = {
   id: string;
   type: ('subreddit' | 'user' | 'post');
   children: Node[];
+  isLeafDuplicate?: boolean;
 };
 
 export type thumbnail = {

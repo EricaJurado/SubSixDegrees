@@ -13,7 +13,9 @@ export const HomePage = ({ postId }: { postId: string }) => {
     type: 'subreddit',
     id: 't2_example',
     children: [],
+    isLeafDuplicate: false, // if new node is a duplicate of an existing node, still add as leaf but don't add children to it
   });
+  const [currentNode, setCurrentNode] = useState<Node | null>(null);
   const [currentSubredditNode, setCurrentSubredditNode] = useState<Node | null>(null);
   const [subredditPosts, setSubredditPosts] = useState<RedditPost[]>([]);
   const [comments, setComments] = useState<any[]>([]);
@@ -37,51 +39,69 @@ export const HomePage = ({ postId }: { postId: string }) => {
     sendToDevvit(message);
   };
 
-  const findNode = (node: Node, subreddit: string): Node | null => {
-    if (node.name === subreddit) return node; // found!
+  const getSubredditFeed = (subreddit: string) =>
+    sendRequest({ type: 'GET_SUBREDDIT_FEED', payload: { subredditName: subreddit } });
 
+  const getPostComments = (postId: string) =>
+    sendRequest({ type: 'GET_POST_COMMENTS', payload: { postId } });
+
+  const getUserByUsername = (username: string) =>
+    sendRequest({ type: 'GET_USER_BY_USERNAME', payload: { username } });
+
+  const findNode = (node: Node, name: string, type: string): Node | null => {
+    if (node.name === name && node.type === type) return node;
     for (const child of node.children) {
-      const found = findNode(child, subreddit);
+      const found = findNode(child, name, type);
       if (found) return found;
     }
-
     return null;
   };
 
-  const handleDiscoverSubreddit = (subreddit: string, id: string) => {
-    sendRequest({
-      type: 'DISCOVER_SUBREDDIT',
-      payload: { subreddit, previousSubreddit: currentSubredditNode?.name || 'start' },
-    });
-
-    setSubredditPath((prev: Node) => {
-      const updatedPath = { ...prev };
-      let existingNode = findNode(updatedPath, subreddit);
-
-      if (!existingNode) {
-        const newSubredditNode: Node = { name: subreddit, type: 'subreddit', id, children: [] };
-        if (currentSubredditNode) {
-          currentSubredditNode.children.push(newSubredditNode);
-        } else {
-          updatedPath.children.push(newSubredditNode);
-        }
-        existingNode = newSubredditNode;
-      }
-
-      setCurrentSubredditNode(existingNode);
-      getSubredditFeed(subreddit);
-      console.log(updatedPath);
-      setView('subreddit');
-      return updatedPath;
-    });
+  const insertNode = (root: Node, parent: Node, newNode: Node): Node => {
+    const existingNode = findNode(root, newNode.name, newNode.type);
+    if (existingNode) {
+      parent.children.push({ ...newNode, isLeafDuplicate: true, children: [] });
+      return existingNode;
+    } else {
+      parent.children.push(newNode);
+      return newNode;
+    }
   };
 
-  const getSubredditFeed = (subreddit: string) =>
-    sendRequest({ type: 'GET_SUBREDDIT_FEED', payload: { subredditName: subreddit } });
-  const getPostComments = (postId: string) =>
-    sendRequest({ type: 'GET_POST_COMMENTS', payload: { postId } });
-  const getUserByUsername = (username: string) =>
-    sendRequest({ type: 'GET_USER_BY_USERNAME', payload: { username } });
+  const handleItemClick = (type: 'subreddit' | 'user' | 'post', name: string, id: string) => {
+    let parentNode = currentNode || subredditPath;
+
+    if (type === 'subreddit') {
+      sendRequest({
+        type: 'DISCOVER_SUBREDDIT',
+        payload: { subreddit: name, previousSubreddit: parentNode.name },
+      });
+    }
+
+    const newNode: Node = { name, type, id, children: [] };
+
+    setSubredditPath((prev) => {
+      const updatedTree = { ...prev };
+      const selectedNode = insertNode(updatedTree, parentNode, newNode);
+      setCurrentNode(selectedNode);
+      return updatedTree;
+    });
+
+    setCurrentSubredditNode(newNode);
+
+    if (type === 'subreddit') {
+      getSubredditFeed(name);
+      setView('subreddit');
+    } else if (type === 'user') {
+      setCurrUser(name);
+      getUserByUsername(name);
+      setView('user');
+    } else if (type === 'post') {
+      setCurrentPost(subredditPosts.find((p) => p.postId === name) || null);
+      getPostComments(name);
+      setView('post');
+    }
+  };
 
   useEffect(() => {
     if (subredditFeedData) setSubredditPosts(subredditFeedData.posts || []);
@@ -95,21 +115,6 @@ export const HomePage = ({ postId }: { postId: string }) => {
     if (userByUsername) setCurrUserObject(userByUsername.user || null);
   }, [userByUsername]);
 
-  const handleItemClick = (type: 'subreddit' | 'user' | 'post', name: string, id: string) => {
-    if (type === 'subreddit') {
-      handleDiscoverSubreddit(name, id);
-    } else if (type === 'user') {
-      setCurrUser(name);
-      getUserByUsername(name);
-      setView('user');
-    } else if (type === 'post') {
-      const post = subredditPosts.find((p) => p.postId === name) || null;
-      setCurrentPost(post);
-      getPostComments(name);
-      setView('post');
-    }
-  };
-
   useEffect(() => {
     console.log('view:', view);
   }, [view]);
@@ -121,12 +126,18 @@ export const HomePage = ({ postId }: { postId: string }) => {
   return (
     <div>
       <p>PostId: {postId}</p>
-      <button onClick={() => handleDiscoverSubreddit('javascript', 'test')}>
+      <button onClick={() => handleItemClick('subreddit', 'javascript', 'test')}>
         Go to r/javascript
       </button>
-      <button onClick={() => handleDiscoverSubreddit('reactjs', 'test1')}>Go to r/reactjs</button>
-      <button onClick={() => handleDiscoverSubreddit('frontend', 'test2')}>Go to r/frontend</button>
-      <button onClick={() => handleDiscoverSubreddit('webdev', 'test3')}>Go to r/webdev</button>
+      <button onClick={() => handleItemClick('subreddit', 'reactjs', 'test1')}>
+        Go to r/reactjs
+      </button>
+      <button onClick={() => handleItemClick('subreddit', 'frontend', 'test2')}>
+        Go to r/frontend
+      </button>
+      <button onClick={() => handleItemClick('subreddit', 'webdev', 'test3')}>
+        Go to r/webdev
+      </button>
 
       {view === 'subreddit' && subredditFeedData && (
         <SubredditFeed
