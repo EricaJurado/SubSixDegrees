@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
-import { RedditPost, Node } from '../shared';
+import { RedditPost, Node, Subreddit } from '../shared';
 import { useDevvitListener } from '../hooks/useDevvitListener';
 import RedditUserFeed from '../components/UserFeed';
 import SubredditFeed from '../pages/SubredditFeed';
@@ -109,10 +109,12 @@ export const HomePage = ({ postId }: { postId: string }) => {
       </button>
       <button onClick={() => handleDiscoverSubreddit('reactjs', 'test1')}>Go to r/reactjs</button>
       <button onClick={() => handleDiscoverSubreddit('frontend', 'test2')}>Go to r/frontend</button>
+      <button onClick={() => handleDiscoverSubreddit('webdev', 'test3')}>Go to r/webdev</button>
 
-      {view === 'subreddit' && (
+      {view === 'subreddit' && subredditFeedData && (
         <SubredditFeed
-          subreddit={currentSubredditNode?.name || 'start'}
+          subredditName={subredditFeedData.subreddit.name || ''}
+          subreddit={subredditFeedData.subreddit || {}}
           feedData={subredditPosts}
           onItemClick={handleItemClick}
         />

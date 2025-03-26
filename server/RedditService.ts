@@ -1,4 +1,5 @@
 import { RedditAPIClient } from '@devvit/public-api';
+import { Subreddit } from '../game/shared.js';
 
 export class RedditService {
   readonly reddit: RedditAPIClient;
@@ -11,6 +12,13 @@ export class RedditService {
   async getSubredditDetails(subreddit: string): Promise<any> {
     try {
       const subredditData = await this.reddit.getSubredditInfoByName(subreddit);
+      const subredditInfo: Subreddit = {
+        name: subreddit,
+        id: subredditData.id || 't5_example',
+        isNsfw: subredditData.isNsfw || false,
+        description: subredditData.description?.markdown || '',
+        subscribersCount: subredditData.subscribersCount || 0,
+      }
       return subredditData;
     } catch (error) {
       console.error(`Error fetching subreddit data: ${error}`);

@@ -38,7 +38,7 @@ export type BlocksToWebviewMessage =
         previousSubreddit: string;
       };
     }
-    | {type: "SUBREDDIT_FEED", payload: { posts: any[] }}
+    | {type: "SUBREDDIT_FEED", payload: { posts: any[], subreddit:any }}
     | {type: "testing", payload: { posts: string }}
     | {type: "POST_COMMENTS", payload: { comments: any[] }}
     | {type: "USER_BY_USERNAME", payload: { user: any }};
@@ -47,11 +47,6 @@ export type BlocksToWebviewMessage =
 export type DevvitMessage = {
   type: "devvit-message";
   data: { message: BlocksToWebviewMessage };
-};
-
-export type SubredditNode = {
-  name: string;
-  children: SubredditNode[];
 };
 
 export type Node = {
@@ -87,8 +82,17 @@ export interface RedditPost {
   secureMedia: secureMedia;
 }
 
+export type Subreddit = {
+  name: string | undefined;
+  id: `t5_${string}` | undefined;
+  isNsfw: boolean;
+  description: string;
+  subscribersCount: number;
+};
+
 export interface SubredditFeedProps {
-  subreddit: string;
+  subredditName: string;
+  subreddit: Subreddit;
   feedData: RedditPost[];
   onItemClick: (type: 'subreddit' | 'user' | 'post', name: string, id: string) => void;
 }

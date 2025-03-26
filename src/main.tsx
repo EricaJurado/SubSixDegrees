@@ -1,4 +1,4 @@
-import { Devvit, RedditAPIClient, useWebView } from '@devvit/public-api';
+import { Devvit, getSubredditInfoByName, RedditAPIClient, useWebView } from '@devvit/public-api';
 import { DEVVIT_SETTINGS_KEYS } from './constants.js';
 import { BlocksToWebviewMessage, RedditPost, WebviewToBlockMessage } from '../game/shared.js';
 import { Preview } from './components/Preview.js';
@@ -101,6 +101,9 @@ Devvit.addCustomPostType({
 
           case 'GET_SUBREDDIT_FEED':
             const test = await redditAPI.getTopPosts(data.payload.subredditName);
+            const subreddit = await redditAPI.getSubredditDetails(data.payload.subredditName);
+            console.log(subreddit);
+
             console.log(test[0]);
             const formattedPosts: RedditPost[] = test.map((post) => ({
               postId: post.id,
@@ -120,6 +123,13 @@ Devvit.addCustomPostType({
               type: 'SUBREDDIT_FEED',
               payload: {
                 posts: formattedPosts,
+                subreddit: {
+                  name: subreddit.name,
+                  id: subreddit.id,
+                  isNsfw: subreddit.isNsfw,
+                  description: subreddit.description.markdown,
+                  subscribersCount: subreddit.subscribersCount,
+                },
               },
             });
             break;
