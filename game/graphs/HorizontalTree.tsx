@@ -153,9 +153,10 @@ const HorizontalTree = ({
       const currentElement = d3.select(nodes[i]); // Explicitly reference the current node
 
       if (currentNode && d.data.id === currentNode.id && snoovatarUrl) {
+        console.log(snoovatarUrl);
         currentElement
           .append('image')
-          .attr('xlink:href', snoovatarUrl)
+          .attr('xlink:href', snoovatarUrl ? snoovatarUrl : 'defaultSnoo.png')
           .attr('width', 40)
           .attr('height', 40)
           .attr('x', -20) // Centering the image

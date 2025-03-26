@@ -6,12 +6,19 @@ import { useDevvitListener } from '../hooks/useDevvitListener';
 import RedditUserFeed from '../components/UserFeed';
 import SubredditFeed from '../pages/SubredditFeed';
 import Post from '../components/Post';
+import dailyChallenges from '../dailyChallenges.json';
 
 export const HomePage = ({ postId }: { postId: string }) => {
+  // get today's date and get the corresponding dailyChallenge
+  const today = new Date().toLocaleDateString();
+  const allChallenges = dailyChallenges as Record<string, string[]>;
+  const todaysChallenge = allChallenges[today];
+  const startSubreddit = todaysChallenge[0];
+
   const [subredditPath, setSubredditPath] = useState<Node>({
-    name: 'webdev',
+    name: startSubreddit,
     type: 'subreddit',
-    id: 'webdev',
+    id: startSubreddit.toLowerCase(),
     children: [],
     isLeafDuplicate: false, // if new node is a duplicate of an existing node, still add as leaf but don't add children to it
   });
@@ -65,17 +72,17 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const getUserByUsername = (username: string) =>
     sendRequest({ type: 'GET_USER_BY_USERNAME', payload: { username } });
 
-  const findNode = (node: Node, name: string, type: string): Node | null => {
-    if (node.name === name && node.type === type) return node;
+  const findNode = (node: Node, id: string, type: string): Node | null => {
+    if (node.id === id && node.type === type) return node;
     for (const child of node.children) {
-      const found = findNode(child, name, type);
+      const found = findNode(child, id, type);
       if (found) return found;
     }
     return null;
   };
 
   const insertNode = (root: Node, parent: Node, newNode: Node): Node => {
-    const existingNode = findNode(root, newNode.name, newNode.type);
+    const existingNode = findNode(root, newNode.id.toLowerCase(), newNode.type);
     if (existingNode) {
       parent.children.push({ ...newNode, isLeafDuplicate: true, children: [] });
       return existingNode;
@@ -95,7 +102,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       });
     }
 
-    const newNode: Node = { name, type, id, children: [] };
+    const newNode: Node = { name, type, id: id.toLowerCase(), children: [] };
 
     setSubredditPath((prev) => {
       const updatedTree = { ...prev };
