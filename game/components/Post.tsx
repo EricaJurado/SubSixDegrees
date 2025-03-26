@@ -1,5 +1,6 @@
 import React from 'react';
 import { RedditPost } from '../shared';
+import CommentCard from './CommentCard';
 
 type RedditPostProps = {
   post: RedditPost;
@@ -37,13 +38,18 @@ const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
         />
       )}
       <h3>Comments</h3>
-      <ul>
-        {comments?.map((comment) => (
-          <li key={comment.postId}>
-            <strong>{comment.authorName}</strong>: {comment.body}
-          </li>
-        ))}
-      </ul>
+      {comments?.map((comment) => {
+        if (comment.authorName !== 'AutoModerator') {
+          return (
+            <CommentCard
+              key={comment.id}
+              authorName={comment.authorName}
+              commentContent={comment.body}
+              onItemClick={onItemClick}
+            />
+          );
+        }
+      })}
       {/* <p
         onClick={() => onItemClick('subreddit', post.subreddit)}
         style={{ cursor: 'pointer', color: 'blue' }}

@@ -16,6 +16,9 @@ export type WebviewToBlockMessage =
   | { type: "GET_USER_BY_USERNAME";
     payload: { username: string };
   }
+  | { type: "COMMENT_ON_POST";
+    payload: { postId: string, comment: string, base64Image: string };
+  };
 
 export type BlocksToWebviewMessage =
   | {

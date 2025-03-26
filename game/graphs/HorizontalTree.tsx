@@ -7,11 +7,12 @@ interface HorizontalTreeProps {
   handleNodeClick: (node: Node) => void;
   currentNode?: Node | null;
   snoovatarUrl?: string; // User's snoovatar URL
+  ref: any;
 }
 
 const width = 900;
 const height = 500;
-const margin = { top: 40, right: 74, bottom: 40, left: 75 };
+const margin = { top: 40, right: 100, bottom: 40, left: 100 };
 
 let svg: any = null;
 let tree: any = null;
@@ -21,9 +22,8 @@ const HorizontalTree = ({
   handleNodeClick,
   currentNode,
   snoovatarUrl,
+  ref,
 }: HorizontalTreeProps) => {
-  const ref = useRef<SVGSVGElement | null>(null);
-
   const drawTree = (treeData: any) => {
     const nodes = tree(buildNodesHierarchy(treeData));
     svg = buildSvgContainer(width, height);
@@ -78,7 +78,8 @@ const HorizontalTree = ({
     return d3
       .select(ref.current)
       .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom);
+      .attr('height', height + margin.top + margin.bottom)
+      .style('background-color', 'white');
   };
 
   const buildGroup = () => {
@@ -103,27 +104,33 @@ const HorizontalTree = ({
       .data(nodes.descendants().slice(1))
       .enter()
       .append('path')
+      .style('stroke', '#004cae')
+      .style('stroke-width', 2)
       .attr('class', 'link')
       .attr('d', function (d: any) {
-        return (
-          'M' +
-          d.y +
-          ',' +
-          d.x +
-          'C' +
-          (d.y + d.parent.y) / 2 +
-          ',' +
-          d.x +
-          ' ' +
-          (d.y + d.parent.y) / 2 +
-          ',' +
-          d.parent.x +
-          ' ' +
-          d.parent.y +
-          ',' +
-          d.parent.x
-        );
+        return `M${d.y},${d.x} L${d.parent.y},${d.parent.x}`;
       });
+
+    // .attr('d', function (d: any) {
+    //   return (
+    //     'M' +
+    //     d.y +
+    //     ',' +
+    //     d.x +
+    //     'C' +
+    //     (d.y + d.parent.y) / 2 +
+    //     ',' +
+    //     d.x +
+    //     ' ' +
+    //     (d.y + d.parent.y) / 2 +
+    //     ',' +
+    //     d.parent.x +
+    //     ' ' +
+    //     d.parent.y +
+    //     ',' +
+    //     d.parent.x
+    //   );
+    // });
   };
 
   const buildNode = (group: any, nodes: any) => {
@@ -156,7 +163,7 @@ const HorizontalTree = ({
         console.log(snoovatarUrl);
         currentElement
           .append('image')
-          .attr('xlink:href', snoovatarUrl ? snoovatarUrl : 'defaultSnoo.png')
+          .attr('xlink:href', 'defaultSnoo.png')
           .attr('width', 40)
           .attr('height', 40)
           .attr('x', -20) // Centering the image
@@ -183,7 +190,14 @@ const HorizontalTree = ({
       .attr('dy', '.25em')
       .attr('x', (d: any) => (d.children ? -13 : 13))
       .style('text-anchor', (d: any) => (d.children ? 'end' : 'start'))
-      .text((d: any) => d.data.name);
+      .text((d: any) => {
+        if (d.data.type === 'user') {
+          return 'u/' + d.data.name;
+        } else if (d.data.type === 'subreddit') {
+          return 'r/' + d.data.name;
+        }
+        return d.data.name;
+      });
   };
 
   return <svg ref={ref} />;

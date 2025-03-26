@@ -1,4 +1,4 @@
-import { RedditAPIClient } from '@devvit/public-api';
+import { RedditAPIClient, RichTextBuilder } from '@devvit/public-api';
 import { Subreddit } from '../game/shared.js';
 
 export class RedditService {
@@ -84,6 +84,20 @@ export class RedditService {
       return userWithSnoovatar;
     } catch (error) {
       console.error(`Error fetching user data for ${username}: ${error}`);
+      throw error;
+    }
+  }
+
+  async commentOnPost(postId: string, comment: string, mediaId: any ): Promise<void> {
+    console.log(`Commenting on post ${postId}: ${comment}`);
+    try {
+      await this.reddit.submitComment({
+        id: postId,
+        // text: comment,
+        richtext: new RichTextBuilder().image({mediaId: mediaId}),
+      });
+    } catch (error) {
+      console.error(`Error commenting on post ${postId}: ${error}`);
       throw error;
     }
   }

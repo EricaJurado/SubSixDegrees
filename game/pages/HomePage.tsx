@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
 import { RedditPost, Node, Subreddit } from '../shared';
@@ -7,6 +7,8 @@ import RedditUserFeed from '../components/UserFeed';
 import SubredditFeed from '../pages/SubredditFeed';
 import Post from '../components/Post';
 import dailyChallenges from '../dailyChallenges.json';
+import svg64 from 'svg64';
+import { image } from 'd3';
 
 export const HomePage = ({ postId }: { postId: string }) => {
   // get today's date and get the corresponding dailyChallenge
@@ -58,7 +60,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
       | 'GET_SUBREDDIT_FEED'
       | 'GET_POST_COMMENTS'
       | 'GET_USER_BY_USERNAME'
-      | 'DISCOVER_SUBREDDIT';
+      | 'DISCOVER_SUBREDDIT'
+      | 'COMMENT_ON_POST';
     payload: any;
   }) => {
     sendToDevvit(message);
@@ -167,8 +170,51 @@ export const HomePage = ({ postId }: { postId: string }) => {
     }
   }, [currentNode]);
 
+  const ref = useRef<SVGSVGElement | null>(null);
+
+  const testCommentTrigger = async () => {
+    console.log('Triggering test comment');
+    if (!ref.current) {
+      console.log('Ref is null or undefined');
+      return;
+    }
+
+    const pngVersion = await convertToPng();
+  };
+
+  const convertToPng = async () => {
+    if (!ref.current) return;
+
+    // Get the SVG data
+    const svgString = new XMLSerializer().serializeToString(ref.current);
+    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+
+    // Load into an Image
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = ref.current!.clientWidth;
+      canvas.height = ref.current!.clientHeight;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.drawImage(img, 0, 0);
+      // setBase64(canvas.toDataURL('image/png')); // Convert to Base64
+      const base64OfSVG = canvas.toDataURL('image/png');
+      sendRequest({
+        type: 'COMMENT_ON_POST',
+        payload: { postId: postId, comment: 'This is a test comment', base64Image: base64OfSVG },
+      });
+      URL.revokeObjectURL(url); // Clean up
+    };
+    img.src = url;
+    return img;
+  };
+
   return (
     <div>
+      <button onClick={testCommentTrigger}>Test Comment</button>
       <p>PostId: {postId}</p>
       <button onClick={() => handleItemClick('subreddit', 'javascript', 'test')}>
         Go to r/javascript
@@ -213,6 +259,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
         handleNodeClick={handleNodeClick}
         currentNode={currentNode}
         snoovatarUrl={player?.snoovatarUrl}
+        ref={ref}
       />
     </div>
   );

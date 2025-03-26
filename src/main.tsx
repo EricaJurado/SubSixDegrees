@@ -51,6 +51,7 @@ Devvit.configure({
   http: true,
   redis: true,
   realtime: true,
+  media: true,
 });
 
 // Add a menu item for creating a post
@@ -173,6 +174,19 @@ Devvit.addCustomPostType({
                 user: user,
               },
             });
+            break;
+
+          case 'COMMENT_ON_POST':
+            let imageResp = await context.media.upload({
+              url: data.payload.base64Image,
+              type: 'image',
+            });
+            console.log('imageResp', imageResp);
+
+            const imageMediaId = imageResp.mediaId;
+            console.log('imageMediaId', imageMediaId);
+
+            await redditAPI.commentOnPost(data.payload.postId, data.payload.comment, imageMediaId);
             break;
 
           default:
