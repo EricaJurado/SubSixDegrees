@@ -89,10 +89,10 @@ Devvit.addCustomPostType({
         let subredditPath = await getSubredditGraph(context, context.postId!, username);
 
         const getSubredditInfo = async (subredditName: string) => {
-          const test = await redditAPI.getTopPosts(subredditName);
+          let posts = await redditAPI.getNewPosts(subredditName);
           const subreddit = await redditAPI.getSubredditDetails(subredditName);
 
-          const formattedPosts: RedditPost[] = test.map((post) => ({
+          const formattedPosts: RedditPost[] = posts.map((post) => ({
             postId: post.id,
             title: post.title,
             authorName: post.authorName,
@@ -114,7 +114,7 @@ Devvit.addCustomPostType({
                 name: subreddit.name,
                 id: subreddit.id,
                 isNsfw: subreddit.isNsfw,
-                description: subreddit.description.markdown,
+                description: subreddit.description?.markdown,
                 subscribersCount: subreddit.subscribersCount,
               },
             },

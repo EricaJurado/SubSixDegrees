@@ -14,6 +14,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const allChallenges = dailyChallenges as Record<string, string[]>;
   const todaysChallenge = allChallenges[today];
   const startSubreddit = todaysChallenge[0];
+  const targetSubreddit = todaysChallenge[1];
 
   const [subredditPath, setSubredditPath] = useState<Node>({
     name: startSubreddit,
@@ -159,6 +160,12 @@ export const HomePage = ({ postId }: { postId: string }) => {
     console.log('Node clicked:', node);
     teleportToNode(node);
   };
+
+  useEffect(() => {
+    if (currentNode?.id.toString() === targetSubreddit.toLowerCase()) {
+      console.log('WIN!!!!');
+    }
+  }, [currentNode]);
 
   return (
     <div>

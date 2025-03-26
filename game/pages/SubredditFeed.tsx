@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PostPreview from '../components/PostPreview';
 import { SubredditFeedProps } from '../shared';
 import Markdown from 'markdown-to-jsx';
@@ -37,9 +37,15 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
   feedData,
   onItemClick,
 }) => {
+  useEffect(() => {
+    console.log(feedData);
+  }, [feedData]);
   // Render description with subreddit mentions converted to <a> tags
   const renderDescription = () => {
     // Convert markdown to HTML and replace subreddit mentions with <a> tags
+    if (!subreddit.description) {
+      return null;
+    }
     const descriptionWithLinks = replaceSubredditWithLinks(subreddit.description);
 
     // // Remove non-subreddit links (keep only those starting with 'r/')

@@ -54,6 +54,10 @@ export class RedditService {
     }
   }
 
+  // get controversial
+  // get hot
+  // get rising
+
   // Get comments from a specific post in a subreddit
   async getPostComments(postId: string): Promise<any[]> {
     try {
