@@ -2,7 +2,7 @@ export type Page =
   | "home";
 
 export type WebviewToBlockMessage = 
-  | { type: "INIT" }
+  | { type: "INIT"; payload: { } }
   | {
       type: "DISCOVER_SUBREDDIT";
       payload: { subreddit: string, previousSubreddit: string };
@@ -15,7 +15,7 @@ export type WebviewToBlockMessage =
   }
   | { type: "GET_USER_BY_USERNAME";
     payload: { username: string };
-  };
+  }
 
 export type BlocksToWebviewMessage =
   | {
@@ -41,7 +41,12 @@ export type BlocksToWebviewMessage =
     | {type: "SUBREDDIT_FEED", payload: { posts: any[], subreddit:any }}
     | {type: "testing", payload: { posts: string }}
     | {type: "POST_COMMENTS", payload: { comments: any[] }}
-    | {type: "USER_BY_USERNAME", payload: { user: any }};
+    | {type: "USER_BY_USERNAME", payload: { user: any }}
+    | {type: "PLAYER", payload: { 
+      id: string;
+      username: string;
+      snoovatarUrl: string;
+     }};
 
 
 export type DevvitMessage = {

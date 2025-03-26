@@ -4,16 +4,25 @@ import { Node } from '../shared';
 
 interface HorizontalTreeProps {
   data: Node;
+  handleNodeClick: (node: Node) => void;
+  currentNode?: Node | null;
+  snoovatarUrl?: string; // User's snoovatar URL
 }
 
 const width = 900;
 const height = 500;
-const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+const margin = { top: 40, right: 74, bottom: 40, left: 75 };
 
 let svg: any = null;
 let tree: any = null;
 
-const HorizontalTree = ({ data }: HorizontalTreeProps) => {
+const HorizontalTree = ({
+  data,
+  handleNodeClick,
+  currentNode,
+  snoovatarUrl,
+}: HorizontalTreeProps) => {
+  console.log(snoovatarUrl);
   const ref = useRef<SVGSVGElement | null>(null);
 
   const drawTree = (treeData: any) => {
@@ -53,8 +62,9 @@ const HorizontalTree = ({ data }: HorizontalTreeProps) => {
 
   const handleClickOnEntity = (event: MouseEvent, d: any) => {
     console.log('Node clicked:', d);
+    handleNodeClick(d.data);
 
-    resetAllCircleStyle();
+    // resetAllCircleStyle();
     const target = event.target as SVGElement;
     d3.select(target)
       .transition()
@@ -129,10 +139,44 @@ const HorizontalTree = ({ data }: HorizontalTreeProps) => {
     node
       .append('circle')
       .attr('r', 5)
-      .attr('fill', (d: any) => (d.data?.isLeafDuplicate ? 'black' : 'green'))
+      .attr('fill', (d: any) => {
+        if (currentNode && d.data.id === currentNode.id) {
+          return 'red';
+        }
+        return d.data?.isLeafDuplicate ? 'black' : 'green';
+      })
       .on('click', function (event: MouseEvent, d: any) {
         handleClickOnEntity(event, d);
       });
+
+    // Add either a circle or an image (snoovatar)
+    node.each((d: any, i: number, nodes: SVGGElement[]) => {
+      const currentElement = d3.select(nodes[i]); // Explicitly reference the current node
+
+      if (currentNode && d.data.id === currentNode.id && snoovatarUrl) {
+        currentElement
+          .append('image')
+          .attr('xlink:href', snoovatarUrl)
+          .attr('width', 40)
+          .attr('height', 40)
+          .attr('x', -20) // Centering the image
+          .attr('y', -20) // Centering the image
+          .attr('clip-path', 'circle(20px at center)');
+      } else {
+        currentElement
+          .append('circle')
+          .attr('r', 5)
+          .attr('fill', (d: any) => {
+            if (currentNode && d.data.id === currentNode.id) {
+              return 'red';
+            }
+            return d.data?.isLeafDuplicate ? 'black' : 'green';
+          })
+          .on('click', function (event: MouseEvent, d: any) {
+            handleClickOnEntity(event, d);
+          });
+      }
+    });
 
     node
       .append('text')

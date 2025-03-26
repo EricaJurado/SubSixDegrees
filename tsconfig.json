@@ -3,7 +3,8 @@
     "lib": ["esnext", "dom", "DOM.Iterable"],
     "target": "esnext",
     "esModuleInterop": true,
-    "noEmit": true
+    "noEmit": true,
+    "resolveJsonModule": true
   },
   "include": ["./src/**/*"],
   "extends": "@devvit/public-api/devvit.tsconfig.json"

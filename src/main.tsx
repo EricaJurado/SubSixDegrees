@@ -4,6 +4,7 @@ import { BlocksToWebviewMessage, RedditPost, WebviewToBlockMessage } from '../ga
 import { Preview } from './components/Preview.js';
 import { RedditService } from '../server/RedditService.js';
 import { timeAgo } from './utils.js';
+import { get } from 'http';
 
 // Get current username, defaulting to 'anon' if none found
 const getCurrentUsername = async (context: any) => {
@@ -87,6 +88,41 @@ Devvit.addCustomPostType({
         const username = await getCurrentUsername(context);
         let subredditPath = await getSubredditGraph(context, context.postId!, username);
 
+        const getSubredditInfo = async (subredditName: string) => {
+          const test = await redditAPI.getTopPosts(subredditName);
+          const subreddit = await redditAPI.getSubredditDetails(subredditName);
+
+          const formattedPosts: RedditPost[] = test.map((post) => ({
+            postId: post.id,
+            title: post.title,
+            authorName: post.authorName,
+            body: post.body,
+            bodyHtml: post.bodyHtml,
+            createdAt: timeAgo(post.createdAt),
+            nsfw: post.nsfw,
+            score: post.score,
+            numberOfComments: post.numberOfComments,
+            thumbnail: post.thumbnail,
+            secureMedia: post.secureMedia,
+          }));
+
+          console.log(formattedPosts);
+
+          postMessage({
+            type: 'SUBREDDIT_FEED',
+            payload: {
+              posts: formattedPosts,
+              subreddit: {
+                name: subreddit.name,
+                id: subreddit.id,
+                isNsfw: subreddit.isNsfw,
+                description: subreddit.description.markdown,
+                subscribersCount: subreddit.subscribersCount,
+              },
+            },
+          });
+        };
+
         switch (data.type) {
           case 'INIT':
             // Send initial data to the webview
@@ -97,39 +133,25 @@ Devvit.addCustomPostType({
                 subredditPath: subredditPath,
               },
             });
+
+            console.log('here hopefully');
+
+            // get current user's snoovatar
+            const player = await redditAPI.getUserByUsername(username);
+            console.log('player', player);
+            postMessage({
+              type: 'PLAYER',
+              payload: {
+                id: player.id,
+                username: player.username,
+                snoovatarUrl: player.snoovatarUrl,
+              },
+            });
             break;
 
           case 'GET_SUBREDDIT_FEED':
-            const test = await redditAPI.getTopPosts(data.payload.subredditName);
-            const subreddit = await redditAPI.getSubredditDetails(data.payload.subredditName);
-
-            const formattedPosts: RedditPost[] = test.map((post) => ({
-              postId: post.id,
-              title: post.title,
-              authorName: post.authorName,
-              body: post.body,
-              bodyHtml: post.bodyHtml,
-              createdAt: timeAgo(post.createdAt),
-              nsfw: post.nsfw,
-              score: post.score,
-              numberOfComments: post.numberOfComments,
-              thumbnail: post.thumbnail,
-              secureMedia: post.secureMedia,
-            }));
-
-            postMessage({
-              type: 'SUBREDDIT_FEED',
-              payload: {
-                posts: formattedPosts,
-                subreddit: {
-                  name: subreddit.name,
-                  id: subreddit.id,
-                  isNsfw: subreddit.isNsfw,
-                  description: subreddit.description.markdown,
-                  subscribersCount: subreddit.subscribersCount,
-                },
-              },
-            });
+            console.log('in here???');
+            await getSubredditInfo(data.payload.subredditName);
             break;
 
           case 'GET_POST_COMMENTS':

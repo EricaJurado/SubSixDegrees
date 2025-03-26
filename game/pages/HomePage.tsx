@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
 import { RedditPost, Node, Subreddit } from '../shared';
@@ -9,9 +9,9 @@ import Post from '../components/Post';
 
 export const HomePage = ({ postId }: { postId: string }) => {
   const [subredditPath, setSubredditPath] = useState<Node>({
-    name: 'start',
+    name: 'webdev',
     type: 'subreddit',
-    id: 't2_example',
+    id: 'webdev',
     children: [],
     isLeafDuplicate: false, // if new node is a duplicate of an existing node, still add as leaf but don't add children to it
   });
@@ -27,6 +27,23 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const subredditFeedData = useDevvitListener('SUBREDDIT_FEED');
   const commentsData = useDevvitListener('POST_COMMENTS');
   const userByUsername = useDevvitListener('USER_BY_USERNAME');
+  const player = useDevvitListener('PLAYER');
+
+  useEffect(() => {
+    console.log('subredditFeedData:', subredditFeedData);
+  }, [subredditFeedData]);
+
+  useEffect(() => {
+    console.log('commentsData:', commentsData);
+  }, [commentsData]);
+
+  useEffect(() => {
+    console.log('userByUsername:', userByUsername);
+  }, [userByUsername]);
+
+  useEffect(() => {
+    console.log('player:', player);
+  }, [player]);
 
   const sendRequest = (message: {
     type:
@@ -115,13 +132,26 @@ export const HomePage = ({ postId }: { postId: string }) => {
     if (userByUsername) setCurrUserObject(userByUsername.user || null);
   }, [userByUsername]);
 
-  useEffect(() => {
-    console.log('view:', view);
-  }, [view]);
+  const teleportToNode = (node: Node) => {
+    setCurrentNode(node);
+    if (node.type === 'subreddit') {
+      getSubredditFeed(node.name);
+      setView('subreddit');
+    } else if (node.type === 'user') {
+      setCurrUser(node.name);
+      getUserByUsername(node.name);
+      setView('user');
+    } else if (node.type === 'post') {
+      setCurrentPost(subredditPosts.find((p) => p.postId === node.name) || null);
+      getPostComments(node.name);
+      setView('post');
+    }
+  };
 
-  useEffect(() => {
-    console.log('subredditPath:', subredditPath);
-  }, [subredditPath]);
+  const handleNodeClick = (node: Node) => {
+    console.log('Node clicked:', node);
+    teleportToNode(node);
+  };
 
   return (
     <div>
@@ -164,7 +194,12 @@ export const HomePage = ({ postId }: { postId: string }) => {
         <Post post={currentPost} comments={comments} onItemClick={handleItemClick} />
       )}
 
-      <HorizontalTree data={subredditPath} />
+      <HorizontalTree
+        data={subredditPath}
+        handleNodeClick={handleNodeClick}
+        currentNode={currentNode}
+        snoovatarUrl={player?.snoovatarUrl}
+      />
     </div>
   );
 };
