@@ -5,6 +5,7 @@ import { RedditPost, Node, Subreddit } from '../shared';
 import { useDevvitListener } from '../hooks/useDevvitListener';
 import RedditUserFeed from '../components/UserFeed';
 import SubredditFeed from '../pages/SubredditFeed';
+import Post from '../components/Post';
 
 export const HomePage = ({ postId }: { postId: string }) => {
   const [subredditPath, setSubredditPath] = useState<Node>({
@@ -36,6 +37,17 @@ export const HomePage = ({ postId }: { postId: string }) => {
     sendToDevvit(message);
   };
 
+  const findNode = (node: Node, subreddit: string): Node | null => {
+    if (node.name === subreddit) return node; // found!
+
+    for (const child of node.children) {
+      const found = findNode(child, subreddit);
+      if (found) return found;
+    }
+
+    return null;
+  };
+
   const handleDiscoverSubreddit = (subreddit: string, id: string) => {
     sendRequest({
       type: 'DISCOVER_SUBREDDIT',
@@ -44,18 +56,19 @@ export const HomePage = ({ postId }: { postId: string }) => {
 
     setSubredditPath((prev: Node) => {
       const updatedPath = { ...prev };
-      let currentNode = currentSubredditNode || updatedPath;
-      const existingNode = currentNode.children.find((child: Node) => child.name === subreddit);
+      let existingNode = findNode(updatedPath, subreddit);
 
       if (!existingNode) {
-        const newSubredditNode: Node = { name: subreddit, type: 'subreddit', id: id, children: [] };
-        currentNode.children.push(newSubredditNode);
-        currentNode = newSubredditNode; // move to newly added node
-      } else {
-        currentNode = existingNode;
+        const newSubredditNode: Node = { name: subreddit, type: 'subreddit', id, children: [] };
+        if (currentSubredditNode) {
+          currentSubredditNode.children.push(newSubredditNode);
+        } else {
+          updatedPath.children.push(newSubredditNode);
+        }
+        existingNode = newSubredditNode;
       }
 
-      setCurrentSubredditNode(currentNode);
+      setCurrentSubredditNode(existingNode);
       getSubredditFeed(subreddit);
       console.log(updatedPath);
       setView('subreddit');
@@ -101,6 +114,10 @@ export const HomePage = ({ postId }: { postId: string }) => {
     console.log('view:', view);
   }, [view]);
 
+  useEffect(() => {
+    console.log('subredditPath:', subredditPath);
+  }, [subredditPath]);
+
   return (
     <div>
       <p>PostId: {postId}</p>
@@ -133,19 +150,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       )}
 
       {view === 'post' && currentPost && (
-        <div>
-          <h2>{currentPost.title}</h2>
-          <p>By {currentPost.authorName}</p>
-          <p>{currentPost.body}</p>
-          <h3>Comments</h3>
-          <ul>
-            {comments.map((comment) => (
-              <li key={comment.postId}>
-                <strong>{comment.authorName}</strong>: {comment.body}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <Post post={currentPost} comments={comments} onItemClick={handleItemClick} />
       )}
 
       <HorizontalTree data={subredditPath} />
