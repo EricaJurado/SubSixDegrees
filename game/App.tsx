@@ -22,7 +22,6 @@ export const App = () => {
 
   // get today's date and get the corresponding dailyChallenge
   const today = new Date().toLocaleDateString();
-  console.log(today);
   const allChallenges = dailyChallenges as Record<string, string[]>;
   const todaysChallenge = allChallenges[today];
   const startSubreddit = todaysChallenge[0];

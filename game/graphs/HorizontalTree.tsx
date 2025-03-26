@@ -22,7 +22,6 @@ const HorizontalTree = ({
   currentNode,
   snoovatarUrl,
 }: HorizontalTreeProps) => {
-  console.log(snoovatarUrl);
   const ref = useRef<SVGSVGElement | null>(null);
 
   const drawTree = (treeData: any) => {

@@ -106,8 +106,6 @@ Devvit.addCustomPostType({
             secureMedia: post.secureMedia,
           }));
 
-          console.log(formattedPosts);
-
           postMessage({
             type: 'SUBREDDIT_FEED',
             payload: {
@@ -134,11 +132,8 @@ Devvit.addCustomPostType({
               },
             });
 
-            console.log('here hopefully');
-
             // get current user's snoovatar
             const player = await redditAPI.getUserByUsername(username);
-            console.log('player', player);
             postMessage({
               type: 'PLAYER',
               payload: {
@@ -150,7 +145,6 @@ Devvit.addCustomPostType({
             break;
 
           case 'GET_SUBREDDIT_FEED':
-            console.log('in here???');
             await getSubredditInfo(data.payload.subredditName);
             break;
 
