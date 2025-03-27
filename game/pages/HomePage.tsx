@@ -46,6 +46,13 @@ const calculateShortestDistance = (
   return bfs(subredditPath, startSubreddit, targetSubreddit);
 };
 
+const jumpToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'auto',
+  });
+};
+
 export const HomePage = ({ postId }: { postId: string }) => {
   // get today's date and get the corresponding dailyChallenge
   const today = new Date().toLocaleDateString();
@@ -178,6 +185,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       getPostComments(node.name);
       setView('post');
     }
+    jumpToTop();
   };
 
   useEffect(() => {
