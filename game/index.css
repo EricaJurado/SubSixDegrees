@@ -4,6 +4,11 @@
   --reddit-red: #c41704;
 }
 
+body {
+  margin: 0px;
+  overflow-x: hidden;
+}
+
 
 .toolbar {
   height: 40px;
@@ -28,19 +33,44 @@
   margin: 0px;
 }
 
+#subreddit-banner-container {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#subreddit-feed-name {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 #subreddit-feed {
   display: flex;
   flex-direction: row-reverse;
-  gap: 20px;
+  gap: 10px;
 }
 
 #subreddit-info {
   width: 30%;
+  padding: 0px 10px;
+  text-wrap: wrap;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+#subreddit-info h1 {
+  font-size: 1.5em;
+}
+
+#subreddit-info h2 {
+  font-size: 1.15em;
 }
 
 #subreddit-posts-container {
   width: 70%;
-  padding: 40px;
+  padding: 0px 30px;
 }
 
 .post-preview {

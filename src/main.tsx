@@ -1,10 +1,17 @@
-import { Devvit, getSubredditInfoByName, RedditAPIClient, useWebView } from '@devvit/public-api';
+import {
+  Devvit,
+  getSubredditInfoByName,
+  RedditAPIClient,
+  useState,
+  useWebView,
+} from '@devvit/public-api';
 import { DEVVIT_SETTINGS_KEYS } from './constants.js';
 import { BlocksToWebviewMessage, RedditPost, WebviewToBlockMessage } from '../game/shared.js';
 import { Preview } from './components/Preview.js';
 import { RedditService } from '../server/RedditService.js';
 import { timeAgo } from './utils.js';
 import { get } from 'http';
+import { UIDimensions } from '@devvit/protos';
 
 // Get current username, defaulting to 'anon' if none found
 const getCurrentUsername = async (context: any) => {
@@ -90,8 +97,20 @@ Devvit.addCustomPostType({
         // let subredditPath = await getSubredditGraph(context, context.postId!, username);
 
         const getSubredditInfo = async (subredditName: string) => {
-          let posts = await redditAPI.getNewPosts(subredditName);
+          const posts = await redditAPI.getNewPosts(subredditName);
           const subreddit = await redditAPI.getSubredditDetails(subredditName);
+
+          let subredditStyles = {
+            bannerImage: '',
+            icon: '',
+          };
+          try {
+            const subredditId = posts[0]?.subredditId;
+            subredditStyles = await redditAPI.getSubredditStyles(subredditId);
+            console.log(subredditStyles);
+          } catch (error) {
+            console.error(`Error fetching subreddit styles: ${error}`);
+          }
 
           const formattedPosts: RedditPost[] = posts.map((post) => ({
             postId: post.id,
@@ -118,6 +137,7 @@ Devvit.addCustomPostType({
                 isNsfw: subreddit.isNsfw,
                 description: subreddit.description?.markdown,
                 subscribersCount: subreddit.subscribersCount,
+                styles: subredditStyles,
               },
             },
           });

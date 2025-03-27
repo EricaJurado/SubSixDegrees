@@ -3,6 +3,20 @@ import PostPreview from '../components/PostPreview';
 import { SubredditFeedProps } from '../shared';
 import Markdown from 'markdown-to-jsx';
 
+function formatSubscribersNumber(num: number): string {
+  if (num < 1000) return num.toString();
+
+  const suffixes = ['', 'k', 'M'];
+  let tier = Math.floor(Math.log10(num) / 3);
+
+  if (tier === 0) return num.toString();
+
+  const scaled = num / Math.pow(10, tier * 3);
+  const formatted = scaled % 1 === 0 ? scaled.toFixed(0) : scaled.toFixed(1);
+
+  return `${formatted}${suffixes[tier]}`;
+}
+
 // Function to convert the description with subreddit mentions into an HTML string
 const replaceSubredditWithLinks = (text: string) => {
   // Replace r/subreddit mentions with <a> tags
@@ -36,6 +50,8 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
   subreddit,
   feedData,
   onItemClick,
+  bannerImage,
+  icon,
 }) => {
   useEffect(() => {
     console.log(feedData);
@@ -79,25 +95,37 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
   };
 
   return (
-    <div id="subreddit-feed">
-      <div id="subreddit-info">
-        {/* Render the description with clickable buttons */}
-        {renderDescription()}
-
-        <p>Subscribers: {subreddit.subscribersCount}</p>
-        <p>{subreddit.isNsfw ? 'NSFW' : 'SFW'}</p>
+    <>
+      <div id="subreddit-banner-container">
+        <img src={bannerImage} alt="Subreddit banner" height="100px" />
       </div>
 
-      <div id="subreddit-posts-container">
-        <h1>{subredditName}</h1>
-        {feedData.map((post: any) => (
-          <div key={post.postId}>
-            <hr />
-            {!post.nsfw && <PostPreview post={post} onItemClick={onItemClick} />}
+      <div id="subreddit-feed">
+        <div id="subreddit-info">
+          {/* Render the description with clickable buttons */}
+          {renderDescription()}
+
+          <p>Subscribers: {formatSubscribersNumber(subreddit.subscribersCount)}</p>
+        </div>
+
+        <div id="subreddit-posts-container">
+          <div id="subreddit-feed-name">
+            <img src={icon} alt="Subreddit icon" height="100px" />
+            <h1>r/{subredditName}</h1>
           </div>
-        ))}
+          {feedData.map((post: any) => (
+            <div key={post.postId}>
+              {!post.nsfw && (
+                <>
+                  <hr />
+                  <PostPreview post={post} onItemClick={onItemClick} />
+                </>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -77,11 +77,15 @@ const HorizontalTree = ({
   };
 
   const buildSvgContainer = (width: number, height: number) => {
-    return d3
-      .select(ref.current)
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .style('background-color', 'white');
+    return (
+      d3
+        .select(ref.current)
+        // .attr('width', width + margin.left + margin.right)
+        // .attr('height', height + margin.top + margin.bottom)
+        .attr('preserveAspectRatio', 'xMinYMin meet')
+        .attr('viewBox', '0 0 960 500')
+        .style('background-color', 'white')
+    );
   };
 
   const buildGroup = () => {

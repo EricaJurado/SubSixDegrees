@@ -220,6 +220,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
   return (
     <div>
       <button onClick={testCommentTrigger}>Test Comment</button>
+      {/* 
       <p>PostId: {postId}</p>
       <button onClick={() => handleItemClick('subreddit', 'javascript', 'test')}>
         Go to r/javascript
@@ -232,7 +233,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       </button>
       <button onClick={() => handleItemClick('subreddit', 'webdev', 'test3')}>
         Go to r/webdev
-      </button>
+      </button> */}
 
       {view === 'subreddit' && subredditFeedData && (
         <>
@@ -244,6 +245,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
               subreddit={subredditFeedData.subreddit || {}}
               feedData={subredditPosts}
               onItemClick={handleItemClick}
+              bannerImage={subredditFeedData.subreddit.styles.bannerImage}
+              icon={subredditFeedData.subreddit.styles.icon}
             />
           )}
         </>

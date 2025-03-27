@@ -130,6 +130,8 @@ export interface SubredditFeedProps {
   subreddit: Subreddit;
   feedData: RedditPost[];
   onItemClick: (type: 'subreddit' | 'user' | 'post', name: string, id: string) => void;
+  bannerImage: string;
+  icon: string;
 }
 
 export type redditUser = {

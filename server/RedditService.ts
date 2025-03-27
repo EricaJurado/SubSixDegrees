@@ -26,6 +26,22 @@ export class RedditService {
     }
   }
 
+  async getSubredditStyles(subreddit: string): Promise<any> {
+    try {
+      const styles = await this.reddit.getSubredditStyles(subreddit);
+      console.log(styles);
+      const subredditStyles = {
+        bannerImage: styles.bannerBackgroundImage,
+        icon: styles.icon,
+      }
+      console.log(subredditStyles);
+      return subredditStyles;
+    } catch (error) {
+      console.error(`Error fetching subreddit styles: ${error}`);
+      throw error;
+    }
+  }
+
   // Get top posts from a subreddit
   async getTopPosts(subreddit: string, limit: number = 2): Promise<any[]> {
     try {
