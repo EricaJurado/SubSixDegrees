@@ -81,7 +81,6 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
   return (
     <div id="subreddit-feed">
       <div id="subreddit-info">
-        <h1>{subredditName}</h1>
         {/* Render the description with clickable buttons */}
         {renderDescription()}
 
@@ -90,10 +89,10 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
       </div>
 
       <div id="subreddit-posts-container">
-        <h2>Posts</h2>
-
+        <h1>{subredditName}</h1>
         {feedData.map((post: any) => (
           <div key={post.postId}>
+            <hr />
             {!post.nsfw && <PostPreview post={post} onItemClick={onItemClick} />}
           </div>
         ))}

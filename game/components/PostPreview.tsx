@@ -30,8 +30,11 @@ const PostPreview: React.FC<RedditPostProps> = ({ post, showSubreddit, onItemCli
         <p>{post.createdAt}</p>
       </div>
 
-      <button onClick={() => onItemClick('post', post.postId, post.postId)} className="post-link">
-        {post.title}
+      <button
+        className="post-preview-title"
+        onClick={() => onItemClick('post', post.postId, post.postId)}
+      >
+        <h3 className="post-title">{post.title}</h3>
       </button>
       <div className="post-preview-body">
         {/* <p>{post.nsfw ? 'NSFW' : 'SFW'}</p> */}

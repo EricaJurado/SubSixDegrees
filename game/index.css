@@ -1,9 +1,9 @@
 :root, html {
   font-family: sans-serif;
   background-color: #fff;
-
   --reddit-red: #c41704;
 }
+
 
 .toolbar {
   height: 40px;
@@ -24,6 +24,10 @@
   text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
 }
 
+.post-title {
+  margin: 0px;
+}
+
 #subreddit-feed {
   display: flex;
   flex-direction: row-reverse;
@@ -36,6 +40,7 @@
 
 #subreddit-posts-container {
   width: 70%;
+  padding: 40px;
 }
 
 .post-preview {
@@ -50,6 +55,10 @@
 .post-preview-body {
   display: flex;
   flex-direction: column;
+}
+
+.post-preview-title {
+  font-weight: bold;
 }
 
 .post-stats {
@@ -72,4 +81,11 @@ button {
   font-size: inherit;
   text-decoration-thickness: 3px;
   cursor: pointer;
+  text-align: start;
+  padding: 0px;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
