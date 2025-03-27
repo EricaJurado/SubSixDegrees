@@ -50,11 +50,12 @@ body {
   display: flex;
   flex-direction: row-reverse;
   gap: 10px;
+  padding: 0px 20px;
 }
 
 #subreddit-info {
   width: 30%;
-  padding: 0px 10px;
+  padding-right: 30px;
   text-wrap: wrap;
   word-wrap: break-word;
   white-space: normal;
@@ -137,6 +138,25 @@ a {
 #graph-container {
   height: 500px;
   width: 100%;
+}
+
+#menu {
+  position: sticky;
+  top: 0px;
+  background-color: white;
+}
+
+.menu-popup {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  z-index: 1;
+  width: 100%;
+}
+
+#how-to {
+  padding: 40px;
 }
 
 #goal-banner {
