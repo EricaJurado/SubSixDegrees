@@ -36,6 +36,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const commentsData = useDevvitListener('POST_COMMENTS');
   const userByUsername = useDevvitListener('USER_BY_USERNAME');
   const player = useDevvitListener('PLAYER');
+  const post = useDevvitListener('POST');
 
   const sendRequest = (message: {
     type:
@@ -43,7 +44,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
       | 'GET_POST_COMMENTS'
       | 'GET_USER_BY_USERNAME'
       | 'DISCOVER_SUBREDDIT'
-      | 'COMMENT_ON_POST';
+      | 'COMMENT_ON_POST'
+      | 'GET_POST';
     payload: any;
   }) => {
     sendToDevvit(message);
@@ -57,6 +59,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
 
   const getUserByUsername = (username: string) =>
     sendRequest({ type: 'GET_USER_BY_USERNAME', payload: { username } });
+
+  const getPost = (postId: string) => sendRequest({ type: 'GET_POST', payload: { postId } });
 
   useEffect(() => {
     if (subredditFeedData) setSubredditPosts(subredditFeedData.posts || []);
@@ -123,7 +127,10 @@ export const HomePage = ({ postId }: { postId: string }) => {
       getUserByUsername(node.name);
       setView('user');
     } else if (node.type === 'post') {
+      console.log('teleporting to post', node.name);
+      console.log(node);
       setCurrentPost(subredditPosts.find((p) => p.postId === node.name) || null);
+      getPost(node.name);
       getPostComments(node.name);
       setView('post');
     }
@@ -223,8 +230,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
         />
       )}
 
-      {view === 'post' && currentPost && (
-        <Post post={currentPost} comments={comments} onItemClick={handleItemClick} />
+      {view === 'post' && post && comments && (
+        <Post post={post} comments={comments} onItemClick={handleItemClick} />
       )}
 
       <HorizontalTree

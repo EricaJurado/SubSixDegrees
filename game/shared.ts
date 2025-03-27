@@ -18,7 +18,10 @@ export type WebviewToBlockMessage =
   }
   | { type: "COMMENT_ON_POST";
     payload: { postId: string, comment: string, base64Image: string };
-  };
+  }
+  | { type: "GET_POST";
+    payload: { postId: string };
+  }
 
 export type BlocksToWebviewMessage =
   | {
@@ -49,7 +52,20 @@ export type BlocksToWebviewMessage =
       id: string;
       username: string;
       snoovatarUrl: string;
-     }};
+     }}
+    | {type: "POST", payload: { 
+      postId: string;
+      title: string;
+      authorName: string;
+      body: string;
+      bodyHtml: string;
+      createdAt: string;
+      nsfw: boolean;
+      score: number;
+      numberOfComments: number;
+      thumbnail: any;
+      secureMedia: any;
+     }}
 
 
 export type DevvitMessage = {

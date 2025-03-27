@@ -58,6 +58,17 @@ export class RedditService {
   // get hot
   // get rising
 
+  // get post by id
+  async getPostById(postId: string): Promise<any> {
+    try {
+      const post = await this.reddit.getPostById(postId);
+      return post;
+    } catch (error) {
+      console.error(`Error fetching post by id ${postId}: ${error}`);
+      throw error;
+    }
+  }
+
   // Get comments from a specific post in a subreddit
   async getPostComments(postId: string): Promise<any[]> {
     try {
