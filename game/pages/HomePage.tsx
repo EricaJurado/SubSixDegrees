@@ -9,6 +9,40 @@ import Post from '../components/Post';
 import dailyChallenges from '../dailyChallenges.json';
 import PostPreview from '../components/PostPreview';
 import CommentCard from '../components/CommentCard';
+import MapIcon from '@mui/icons-material/Map';
+
+const calculateShortestDistance = (
+  subredditPath: Node,
+  startSubreddit: string,
+  targetSubreddit: string
+): number => {
+  // Helper function to perform BFS (Breadth-First Search)
+  const bfs = (root: Node, start: string, target: string): number => {
+    const queue: { node: Node; distance: number }[] = [{ node: root, distance: 0 }];
+    const visited = new Set<string>(); // Track visited nodes to avoid cycles
+
+    while (queue.length > 0) {
+      const { node, distance } = queue.shift()!; // Get the next node and its distance
+
+      if (node.name.toLowerCase() === target.toLowerCase()) {
+        return distance; // Found the target subreddit, return the distance
+      }
+
+      visited.add(node.id);
+
+      // Add children nodes to the queue if not visited
+      for (const child of node.children) {
+        if (!visited.has(child.id)) {
+          queue.push({ node: child, distance: distance + 1 });
+        }
+      }
+    }
+
+    return -1; // Return -1 if targetSubreddit is not found
+  };
+
+  return bfs(subredditPath, startSubreddit, targetSubreddit);
+};
 
 export const HomePage = ({ postId }: { postId: string }) => {
   // get today's date and get the corresponding dailyChallenge
@@ -26,14 +60,9 @@ export const HomePage = ({ postId }: { postId: string }) => {
     isLeafDuplicate: false, // if new node is a duplicate of an existing node, still add as leaf but don't add children to it
   });
   const [currentNode, setCurrentNode] = useState<Node | null>(null);
-  const [currentSubredditNode, setCurrentSubredditNode] = useState<Node | null>(null);
   const [subredditPosts, setSubredditPosts] = useState<RedditPost[]>([]);
   const [comments, setComments] = useState<any[]>([]);
-  const [currUser, setCurrUser] = useState<string | null>(null);
-  const [currUserPosts, setCurrUserPosts] = useState<any[]>([]);
-  const [currUserComments, setCurrUserComments] = useState<any[]>([]);
   const [currUserObject, setCurrUserObject] = useState<any | null>(null);
-  const [currentPost, setCurrentPost] = useState<RedditPost | null>(null);
   const [view, setView] = useState<'subreddit' | 'post' | 'user'>('subreddit');
 
   const subredditFeedData = useDevvitListener('SUBREDDIT_FEED');
@@ -129,8 +158,6 @@ export const HomePage = ({ postId }: { postId: string }) => {
       return updatedTree;
     });
 
-    setCurrentSubredditNode(newNode);
-
     teleportToNode(newNode);
   };
 
@@ -139,14 +166,12 @@ export const HomePage = ({ postId }: { postId: string }) => {
       getSubredditFeed(node.name);
       setView('subreddit');
     } else if (node.type === 'user') {
-      setCurrUser(node.name);
       getUserByUsername(node.name);
       getUserPosts(node.name);
       getUserComments(node.name);
       setView('user');
     } else if (node.type === 'post') {
       console.log('teleporting to post', node);
-      setCurrentPost(subredditPosts.find((p) => p.postId === node.name) || null);
       getPost(node.name);
       getPostComments(node.name);
       setView('post');
@@ -170,6 +195,12 @@ export const HomePage = ({ postId }: { postId: string }) => {
   useEffect(() => {
     if (currentNode?.id.toString() === targetSubreddit.toLowerCase()) {
       console.log('WIN!!!!');
+      const shortestPath = calculateShortestDistance(
+        subredditPath,
+        startSubreddit,
+        targetSubreddit
+      );
+      console.log('Shortest Path:', shortestPath);
     }
   }, [currentNode]);
 
@@ -219,18 +250,29 @@ export const HomePage = ({ postId }: { postId: string }) => {
     return img;
   };
 
+  useEffect(() => {
+    console.log(subredditPath);
+    const distance = calculateShortestDistance(subredditPath, startSubreddit, targetSubreddit);
+    console.log('Distance:', distance);
+  }, [subredditPath]);
+
   const [showMap, setShowMap] = useState(false);
 
   return (
     <div>
       <div id="goal-banner">
-        <h1>
-          {startSubreddit} to {targetSubreddit}
+        <h1 id="goal-text">
+          <button onClick={() => handleItemClick('subreddit', startSubreddit, startSubreddit)}>
+            r/{startSubreddit}
+          </button>
+          to r/{targetSubreddit}
         </h1>
-        <button onClick={() => setShowMap(true)}>Show Map</button>
+        <button onClick={() => setShowMap(!showMap)} className="menu-button">
+          <p>{showMap ? 'Hide ' : 'Show '}</p>
+          <MapIcon style={{ color: 'white' }} />
+        </button>
       </div>
       <div style={{ display: showMap ? 'block' : 'none' }}>
-        <button onClick={() => setShowMap(false)}>Hide Map</button>
         <div id="graph-container">
           <HorizontalTree
             data={subredditPath}

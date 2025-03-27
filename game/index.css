@@ -144,4 +144,39 @@ a {
   top: 0;
   background-color: var(--reddit-red);
   color: white;
+  text-align: center;
+  justify-content: center;
+  display: flex;
+  padding: 10px;
+  font-size: .6em;
+}
+
+#goal-banner h1 {
+  margin: 0px;
+  text-align: center;
+  justify-content: center;
+}
+
+#goal-text {
+  flex-grow: 2;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+}
+
+#goal-text button {
+  color: white;
+  font-size: inherit;
+  text-decoration-color: white;
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+.menu-button {
+  color: white;
+  width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-decoration: none;
 }
