@@ -164,6 +164,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const handleNodeClick = (node: Node) => {
     setCurrentNode(node);
     teleportToNode(node);
+    setShowMap(false);
   };
 
   useEffect(() => {
@@ -218,9 +219,30 @@ export const HomePage = ({ postId }: { postId: string }) => {
     return img;
   };
 
+  const [showMap, setShowMap] = useState(false);
+
   return (
     <div>
-      <button onClick={testCommentTrigger}>Test Comment</button>
+      <div id="goal-banner">
+        <h1>
+          {startSubreddit} to {targetSubreddit}
+        </h1>
+        <button onClick={() => setShowMap(true)}>Show Map</button>
+      </div>
+      <div style={{ display: showMap ? 'block' : 'none' }}>
+        <button onClick={() => setShowMap(false)}>Hide Map</button>
+        <div id="graph-container">
+          <HorizontalTree
+            data={subredditPath}
+            handleNodeClick={handleNodeClick}
+            currentNode={currentNode}
+            snoovatarUrl={player?.snoovatarUrl}
+            ref={ref}
+            prepImageForComment={prepImageForComment}
+          />
+        </div>
+        <button onClick={testCommentTrigger}>Test Comment</button>
+      </div>
       {/* 
       <p>PostId: {postId}</p>
       <button onClick={() => handleItemClick('subreddit', 'javascript', 'test')}>
@@ -235,85 +257,81 @@ export const HomePage = ({ postId }: { postId: string }) => {
       <button onClick={() => handleItemClick('subreddit', 'webdev', 'test3')}>
         Go to r/webdev
       </button> */}
-
-      {view === 'subreddit' && subredditFeedData && (
+      {!showMap && (
         <>
-          {subredditFeedData.subreddit.isNsfw && <p>NSFW</p>}
-          {/* make sure ! */}
-          {!subredditFeedData.subreddit.isNsfw && (
-            <SubredditFeed
-              subredditName={subredditFeedData.subreddit.name || ''}
-              subreddit={subredditFeedData.subreddit || {}}
-              feedData={subredditPosts}
-              onItemClick={handleItemClick}
-              bannerImage={subredditFeedData.subreddit.styles.bannerImage}
-              icon={subredditFeedData.subreddit.styles.icon}
-            />
-          )}
-        </>
-      )}
-
-      {view === 'user' && currUserObject && (
-        <>
-          {currUserObject.nsfw && <p>NSFW</p>}
-          {!currUserObject.nsfw && (
+          {view === 'subreddit' && subredditFeedData && (
             <>
-              <UserFeed
-                redditUser={{
-                  username: currUserObject.username,
-                  id: currUserObject.id,
-                  snoovatarUrl: currUserObject.snoovatarUrl,
-                  isAdmin: currUserObject.isAdmin,
-                  nsfw: currUserObject.nsfw,
-                }}
-              />
-              {userPosts && (
-                <div>
-                  <h2>Posts</h2>
-                  {userPosts.posts.map((post) => (
-                    <div key={post.postId}>
-                      <PostPreview post={post} showSubreddit={true} onItemClick={handleItemClick} />
+              {subredditFeedData.subreddit.isNsfw && <p>NSFW</p>}
+              {/* make sure ! */}
+              {!subredditFeedData.subreddit.isNsfw && (
+                <SubredditFeed
+                  subredditName={subredditFeedData.subreddit.name || ''}
+                  subreddit={subredditFeedData.subreddit || {}}
+                  feedData={subredditPosts}
+                  onItemClick={handleItemClick}
+                  bannerImage={subredditFeedData.subreddit.styles.bannerImage}
+                  icon={subredditFeedData.subreddit.styles.icon}
+                />
+              )}
+            </>
+          )}
+
+          {view === 'user' && currUserObject && (
+            <>
+              {currUserObject.nsfw && <p>NSFW</p>}
+              {!currUserObject.nsfw && (
+                <>
+                  <UserFeed
+                    redditUser={{
+                      username: currUserObject.username,
+                      id: currUserObject.id,
+                      snoovatarUrl: currUserObject.snoovatarUrl,
+                      isAdmin: currUserObject.isAdmin,
+                      nsfw: currUserObject.nsfw,
+                    }}
+                  />
+                  {userPosts && (
+                    <div>
+                      <h2>Posts</h2>
+                      {userPosts.posts.map((post) => (
+                        <div key={post.postId}>
+                          <PostPreview
+                            post={post}
+                            showSubreddit={true}
+                            onItemClick={handleItemClick}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  )}
+                  {userComments && (
+                    <div>
+                      <h2>Comments</h2>
+                      {userComments.comments.map((comment) => (
+                        <CommentCard
+                          key={comment.id}
+                          subreddit={comment.subreddit}
+                          postId={comment.postId}
+                          commentContent={comment.body}
+                          authorName={comment.authorName}
+                          onItemClick={handleItemClick}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
-              {userComments && (
-                <div>
-                  <h2>Comments</h2>
-                  {userComments.comments.map((comment) => (
-                    <CommentCard
-                      key={comment.id}
-                      subreddit={comment.subreddit}
-                      postId={comment.postId}
-                      commentContent={comment.body}
-                      authorName={comment.authorName}
-                      onItemClick={handleItemClick}
-                    />
-                  ))}
-                </div>
-              )}
+            </>
+          )}
+
+          {view === 'post' && post && comments && (
+            <>
+              {post.nsfw && <p>NSFW</p>}
+              {!post.nsfw && <Post post={post} comments={comments} onItemClick={handleItemClick} />}
             </>
           )}
         </>
       )}
-
-      {view === 'post' && post && comments && (
-        <>
-          {post.nsfw && <p>NSFW</p>}
-          {!post.nsfw && <Post post={post} comments={comments} onItemClick={handleItemClick} />}
-        </>
-      )}
-
-      <div id="graph-container">
-        <HorizontalTree
-          data={subredditPath}
-          handleNodeClick={handleNodeClick}
-          currentNode={currentNode}
-          snoovatarUrl={player?.snoovatarUrl}
-          ref={ref}
-          prepImageForComment={prepImageForComment}
-        />
-      </div>
     </div>
   );
 };

@@ -138,3 +138,10 @@ a {
   height: 500px;
   width: 100%;
 }
+
+#goal-banner {
+  position: sticky;
+  top: 0;
+  background-color: var(--reddit-red);
+  color: white;
+}
