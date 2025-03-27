@@ -22,6 +22,12 @@ export type WebviewToBlockMessage =
   | { type: "GET_POST";
     payload: { postId: string };
   }
+  | { type: "GET_USER_POSTS";
+    payload: { username: string };
+  }
+  | { type: "GET_USER_COMMENTS";
+    payload: { username: string };
+  };
 
 export type BlocksToWebviewMessage =
   | {
@@ -66,6 +72,8 @@ export type BlocksToWebviewMessage =
       thumbnail: any;
       secureMedia: any;
      }}
+    | {type: "USER_POSTS", payload: { posts: any[] }}
+    | {type: "USER_COMMENTS", payload: { comments: any[] }};
 
 
 export type DevvitMessage = {

@@ -7,6 +7,7 @@ import RedditUserFeed from '../components/UserFeed';
 import SubredditFeed from '../pages/SubredditFeed';
 import Post from '../components/Post';
 import dailyChallenges from '../dailyChallenges.json';
+import { get } from 'http';
 
 export const HomePage = ({ postId }: { postId: string }) => {
   // get today's date and get the corresponding dailyChallenge
@@ -28,6 +29,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const [subredditPosts, setSubredditPosts] = useState<RedditPost[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [currUser, setCurrUser] = useState<string | null>(null);
+  const [currUserPosts, setCurrUserPosts] = useState<any[]>([]);
+  const [currUserComments, setCurrUserComments] = useState<any[]>([]);
   const [currUserObject, setCurrUserObject] = useState<any | null>(null);
   const [currentPost, setCurrentPost] = useState<RedditPost | null>(null);
   const [view, setView] = useState<'subreddit' | 'post' | 'user'>('subreddit');
@@ -37,6 +40,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const userByUsername = useDevvitListener('USER_BY_USERNAME');
   const player = useDevvitListener('PLAYER');
   const post = useDevvitListener('POST');
+  const userPosts = useDevvitListener('USER_POSTS');
+  const userComments = useDevvitListener('USER_COMMENTS');
 
   const sendRequest = (message: {
     type:
@@ -45,7 +50,9 @@ export const HomePage = ({ postId }: { postId: string }) => {
       | 'GET_USER_BY_USERNAME'
       | 'DISCOVER_SUBREDDIT'
       | 'COMMENT_ON_POST'
-      | 'GET_POST';
+      | 'GET_POST'
+      | 'GET_USER_POSTS'
+      | 'GET_USER_COMMENTS';
     payload: any;
   }) => {
     sendToDevvit(message);
@@ -60,6 +67,12 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const getUserByUsername = (username: string) =>
     sendRequest({ type: 'GET_USER_BY_USERNAME', payload: { username } });
 
+  const getUserPosts = (username: string) =>
+    sendRequest({ type: 'GET_USER_POSTS', payload: { username } });
+
+  const getUserComments = (username: string) =>
+    sendRequest({ type: 'GET_USER_COMMENTS', payload: { username } });
+
   const getPost = (postId: string) => sendRequest({ type: 'GET_POST', payload: { postId } });
 
   useEffect(() => {
@@ -71,7 +84,10 @@ export const HomePage = ({ postId }: { postId: string }) => {
   }, [commentsData]);
 
   useEffect(() => {
-    if (userByUsername) setCurrUserObject(userByUsername?.user || null);
+    if (userByUsername) {
+      setCurrUserObject(userByUsername?.user || null);
+    }
+
     console.log(userByUsername?.user);
   }, [userByUsername]);
 
@@ -126,6 +142,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
     } else if (node.type === 'user') {
       setCurrUser(node.name);
       getUserByUsername(node.name);
+      getUserPosts(node.name);
+      getUserComments(node.name);
       setView('user');
     } else if (node.type === 'post') {
       console.log('teleporting to post', node.name);
@@ -136,6 +154,14 @@ export const HomePage = ({ postId }: { postId: string }) => {
       setView('post');
     }
   };
+
+  useEffect(() => {
+    console.log(userPosts);
+  }, [userPosts]);
+
+  useEffect(() => {
+    console.log(userComments);
+  }, [userComments]);
 
   const handleNodeClick = (node: Node) => {
     setCurrentNode(node);
@@ -229,15 +255,39 @@ export const HomePage = ({ postId }: { postId: string }) => {
         <>
           {currUserObject.nsfw && <p>NSFW</p>}
           {!currUserObject.nsfw && (
-            <RedditUserFeed
-              redditUser={{
-                username: currUserObject.username,
-                id: currUserObject.id,
-                snoovatarUrl: currUserObject.snoovatarUrl,
-                isAdmin: currUserObject.isAdmin,
-                nsfw: currUserObject.nsfw,
-              }}
-            />
+            <>
+              <RedditUserFeed
+                redditUser={{
+                  username: currUserObject.username,
+                  id: currUserObject.id,
+                  snoovatarUrl: currUserObject.snoovatarUrl,
+                  isAdmin: currUserObject.isAdmin,
+                  nsfw: currUserObject.nsfw,
+                }}
+              />
+              {userPosts && (
+                <div>
+                  <h2>Posts</h2>
+                  {userPosts.posts.map((post) => (
+                    <div key={post.postId}>
+                      <p>{post.title}</p>
+                      <p>{post.subreddit}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {userComments && (
+                <div>
+                  <h2>Comments</h2>
+                  {userComments.comments.map((comment) => (
+                    <div key={comment.commentId}>
+                      <p>{comment.subreddit}</p>
+                      <p>{comment.body}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </>
       )}

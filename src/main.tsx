@@ -87,7 +87,7 @@ Devvit.addCustomPostType({
         const data = event as unknown as WebviewToBlockMessage;
 
         const username = await getCurrentUsername(context);
-        let subredditPath = await getSubredditGraph(context, context.postId!, username);
+        // let subredditPath = await getSubredditGraph(context, context.postId!, username);
 
         const getSubredditInfo = async (subredditName: string) => {
           let posts = await redditAPI.getNewPosts(subredditName);
@@ -125,13 +125,13 @@ Devvit.addCustomPostType({
         switch (data.type) {
           case 'INIT':
             // Send initial data to the webview
-            postMessage({
-              type: 'INIT_RESPONSE',
-              payload: {
-                postId: context.postId!,
-                subredditPath: subredditPath,
-              },
-            });
+            // postMessage({
+            //   type: 'INIT_RESPONSE',
+            //   payload: {
+            //     postId: context.postId!,
+            //     subredditPath: subredditPath,
+            //   },
+            // });
 
             // get current user's snoovatar
             const player = await redditAPI.getUserByUsername(username);
@@ -171,6 +171,7 @@ Devvit.addCustomPostType({
 
           case 'GET_POST_COMMENTS':
             const comments = await redditAPI.getPostComments(data.payload.postId);
+            console.log(comments[0]);
             const formattedComments = comments.map((comment) => ({
               postId: comment.id,
               body: comment.body,
@@ -192,6 +193,53 @@ Devvit.addCustomPostType({
               type: 'USER_BY_USERNAME',
               payload: {
                 user: user,
+              },
+            });
+            break;
+
+          case 'GET_USER_POSTS':
+            console.log('GET_USER_POSTS');
+            const userPosts = await redditAPI.getUserPostsByName(data.payload.username);
+            console.log(userPosts[0]);
+            const formattedUserPosts = userPosts.map((post) => ({
+              postId: post.id,
+              title: post.title,
+              authorName: post.authorName,
+              body: post.body,
+              bodyHtml: post.bodyHtml,
+              createdAt: timeAgo(post.createdAt),
+              nsfw: post.nsfw,
+              score: post.score,
+              numberOfComments: post.numberOfComments,
+              thumbnail: post.thumbnail,
+              secureMedia: post.secureMedia,
+              subreddit: post.subredditName,
+            }));
+            console.log('formattedUserPosts', formattedUserPosts);
+            postMessage({
+              type: 'USER_POSTS',
+              payload: {
+                posts: formattedUserPosts,
+              },
+            });
+            break;
+
+          case 'GET_USER_COMMENTS':
+            console.log('GET_USER_COMMENTS');
+            const userComments = await redditAPI.getUserCommentsByName(data.payload.username);
+            const formattedUserComments = userComments.map((comment) => ({
+              postId: comment.id,
+              body: comment.body,
+              authorId: comment.authorId,
+              authorName: comment.authorName,
+              snoovatarURL: comment.snoovatarURL,
+              subreddit: comment.subredditName,
+            }));
+            console.log('formattedUserComments', formattedUserComments);
+            postMessage({
+              type: 'USER_COMMENTS',
+              payload: {
+                comments: formattedUserComments,
               },
             });
             break;

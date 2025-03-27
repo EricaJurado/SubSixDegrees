@@ -100,6 +100,27 @@ export class RedditService {
     }
   }
 
+  async getUserPostsByName(username: string): Promise<any[]> {
+    try {
+      const posts = await this.reddit.getPostsByUser({ username: username, sort: "new", pageSize: 15}).all();
+      return posts;
+    } catch (error) {
+      console.error(`Error fetching posts for user ${username}: ${error}`);
+      throw error;
+    }
+  }
+
+  async getUserCommentsByName(username: string): Promise<any[]> {
+    try {
+      const comments = await this.reddit.getCommentsByUser({ username: username, sort: "new", pageSize: 15}).all();
+      return comments;
+    }
+    catch (error) {
+      console.error(`Error fetching comments for user ${username}: ${error}`);
+      throw error;
+    }
+  }
+
   async commentOnPost(postId: string, comment: string, mediaId: any ): Promise<void> {
     console.log(`Commenting on post ${postId}: ${comment}`);
     try {
