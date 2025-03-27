@@ -43,6 +43,8 @@ const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
           return (
             <CommentCard
               key={comment.id}
+              subreddit={post.subreddit}
+              postId={post.postId}
               authorName={comment.authorName}
               commentContent={comment.body}
               onItemClick={onItemClick}

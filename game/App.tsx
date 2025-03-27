@@ -25,7 +25,6 @@ export const App = () => {
   const allChallenges = dailyChallenges as Record<string, string[]>;
   const todaysChallenge = allChallenges[today];
   const startSubreddit = todaysChallenge[0];
-  console.log(todaysChallenge);
 
   useEffect(() => {
     sendToDevvit({ type: 'INIT', payload: {} });

@@ -1,11 +1,11 @@
 import React from 'react';
 import { redditUser } from '../shared';
 
-interface RedditUserFeedProps {
+interface UserFeedProps {
   redditUser: redditUser;
 }
 
-const RedditUserFeed: React.FC<RedditUserFeedProps> = ({ redditUser }) => {
+const UserFeed: React.FC<UserFeedProps> = ({ redditUser }) => {
   return (
     <div style={{ border: '1px solid #ccc', padding: '16px', borderRadius: '8px' }}>
       <h2>Reddit User Details</h2>
@@ -26,4 +26,4 @@ const RedditUserFeed: React.FC<RedditUserFeedProps> = ({ redditUser }) => {
   );
 };
 
-export default RedditUserFeed;
+export default UserFeed;

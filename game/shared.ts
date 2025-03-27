@@ -71,6 +71,7 @@ export type BlocksToWebviewMessage =
       numberOfComments: number;
       thumbnail: any;
       secureMedia: any;
+      subreddit: string;
      }}
     | {type: "USER_POSTS", payload: { posts: any[] }}
     | {type: "USER_COMMENTS", payload: { comments: any[] }};
@@ -113,6 +114,7 @@ export interface RedditPost {
   numberOfComments: number;
   thumbnail: thumbnail;
   secureMedia: secureMedia;
+  subreddit: string;
 }
 
 export type Subreddit = {

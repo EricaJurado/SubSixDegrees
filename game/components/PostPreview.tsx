@@ -3,13 +3,21 @@ import { RedditPost } from '../shared';
 
 type RedditPostProps = {
   post: RedditPost;
+  showSubreddit?: boolean;
   onItemClick: (type: 'subreddit' | 'user' | 'post', name: string, id: string) => void;
 };
 
-const PostPreview: React.FC<RedditPostProps> = ({ post, onItemClick }) => {
+const PostPreview: React.FC<RedditPostProps> = ({ post, showSubreddit, onItemClick }) => {
   return (
     <div>
-      <h2>Preview: {post.title}</h2>
+      {showSubreddit && post.subreddit && (
+        <p
+          onClick={() => onItemClick('subreddit', post.subreddit, post.subreddit)}
+          style={{ cursor: 'pointer', color: 'blue' }}
+        >
+          r/{post.subreddit}
+        </p>
+      )}
       <button
         onClick={() => onItemClick('post', post.postId, post.postId)}
         style={{ cursor: 'pointer', color: 'blue' }}

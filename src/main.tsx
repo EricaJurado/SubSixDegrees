@@ -105,6 +105,7 @@ Devvit.addCustomPostType({
             numberOfComments: post.numberOfComments,
             thumbnail: post.thumbnail,
             secureMedia: post.secureMedia,
+            subreddit: post.subreddit,
           }));
 
           postMessage({
@@ -165,6 +166,7 @@ Devvit.addCustomPostType({
                 numberOfComments: post.numberOfComments,
                 thumbnail: post.thumbnail,
                 secureMedia: post.secureMedia,
+                subreddit: post.subredditName,
               },
             });
             break;
@@ -173,7 +175,8 @@ Devvit.addCustomPostType({
             const comments = await redditAPI.getPostComments(data.payload.postId);
             console.log(comments[0]);
             const formattedComments = comments.map((comment) => ({
-              postId: comment.id,
+              id: comment.id,
+              postId: comment.postId,
               body: comment.body,
               authorId: comment.authorId,
               authorName: comment.authorName,
@@ -200,7 +203,6 @@ Devvit.addCustomPostType({
           case 'GET_USER_POSTS':
             console.log('GET_USER_POSTS');
             const userPosts = await redditAPI.getUserPostsByName(data.payload.username);
-            console.log(userPosts[0]);
             const formattedUserPosts = userPosts.map((post) => ({
               postId: post.id,
               title: post.title,
@@ -215,7 +217,6 @@ Devvit.addCustomPostType({
               secureMedia: post.secureMedia,
               subreddit: post.subredditName,
             }));
-            console.log('formattedUserPosts', formattedUserPosts);
             postMessage({
               type: 'USER_POSTS',
               payload: {
@@ -228,14 +229,13 @@ Devvit.addCustomPostType({
             console.log('GET_USER_COMMENTS');
             const userComments = await redditAPI.getUserCommentsByName(data.payload.username);
             const formattedUserComments = userComments.map((comment) => ({
-              postId: comment.id,
+              postId: comment.postId,
               body: comment.body,
               authorId: comment.authorId,
               authorName: comment.authorName,
               snoovatarURL: comment.snoovatarURL,
               subreddit: comment.subredditName,
             }));
-            console.log('formattedUserComments', formattedUserComments);
             postMessage({
               type: 'USER_COMMENTS',
               payload: {

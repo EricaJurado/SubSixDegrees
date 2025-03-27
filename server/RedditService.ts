@@ -90,7 +90,6 @@ export class RedditService {
   async getUserByUsername(username: string): Promise<any> {
     try {
       const user = await this.reddit.getUserByUsername(username);
-      console.log(user?.nsfw);
       const snoovatarUrl = await this.reddit.getSnoovatarUrl(username);
       const userWithSnoovatar = { ...user, snoovatarUrl };
       return userWithSnoovatar;
@@ -102,7 +101,7 @@ export class RedditService {
 
   async getUserPostsByName(username: string): Promise<any[]> {
     try {
-      const posts = await this.reddit.getPostsByUser({ username: username, sort: "new", pageSize: 15}).all();
+      const posts = await this.reddit.getPostsByUser({ username: username, sort: "new", pageSize: 15, limit: 15}).all();
       return posts;
     } catch (error) {
       console.error(`Error fetching posts for user ${username}: ${error}`);
@@ -112,7 +111,7 @@ export class RedditService {
 
   async getUserCommentsByName(username: string): Promise<any[]> {
     try {
-      const comments = await this.reddit.getCommentsByUser({ username: username, sort: "new", pageSize: 15}).all();
+      const comments = await this.reddit.getCommentsByUser({ username: username, sort: "new", pageSize: 15, limit: 15}).all();
       return comments;
     }
     catch (error) {

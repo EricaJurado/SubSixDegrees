@@ -162,7 +162,6 @@ const HorizontalTree = ({
       const currentElement = d3.select(nodes[i]); // Explicitly reference the current node
 
       if (currentNode && d.data.id === currentNode.id && snoovatarUrl) {
-        console.log(snoovatarUrl);
         currentElement
           .append('image')
           .attr(

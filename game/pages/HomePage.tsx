@@ -1,13 +1,14 @@
-import { use, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
 import { RedditPost, Node, Subreddit } from '../shared';
 import { useDevvitListener } from '../hooks/useDevvitListener';
-import RedditUserFeed from '../components/UserFeed';
+import UserFeed from '../components/UserFeed';
 import SubredditFeed from '../pages/SubredditFeed';
 import Post from '../components/Post';
 import dailyChallenges from '../dailyChallenges.json';
-import { get } from 'http';
+import PostPreview from '../components/PostPreview';
+import CommentCard from '../components/CommentCard';
 
 export const HomePage = ({ postId }: { postId: string }) => {
   // get today's date and get the corresponding dailyChallenge
@@ -87,8 +88,6 @@ export const HomePage = ({ postId }: { postId: string }) => {
     if (userByUsername) {
       setCurrUserObject(userByUsername?.user || null);
     }
-
-    console.log(userByUsername?.user);
   }, [userByUsername]);
 
   const findNode = (node: Node, id: string, type: string): Node | null => {
@@ -146,8 +145,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       getUserComments(node.name);
       setView('user');
     } else if (node.type === 'post') {
-      console.log('teleporting to post', node.name);
-      console.log(node);
+      console.log('teleporting to post', node);
       setCurrentPost(subredditPosts.find((p) => p.postId === node.name) || null);
       getPost(node.name);
       getPostComments(node.name);
@@ -256,7 +254,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
           {currUserObject.nsfw && <p>NSFW</p>}
           {!currUserObject.nsfw && (
             <>
-              <RedditUserFeed
+              <UserFeed
                 redditUser={{
                   username: currUserObject.username,
                   id: currUserObject.id,
@@ -270,8 +268,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
                   <h2>Posts</h2>
                   {userPosts.posts.map((post) => (
                     <div key={post.postId}>
-                      <p>{post.title}</p>
-                      <p>{post.subreddit}</p>
+                      <PostPreview post={post} showSubreddit={true} onItemClick={handleItemClick} />
                     </div>
                   ))}
                 </div>
@@ -280,10 +277,14 @@ export const HomePage = ({ postId }: { postId: string }) => {
                 <div>
                   <h2>Comments</h2>
                   {userComments.comments.map((comment) => (
-                    <div key={comment.commentId}>
-                      <p>{comment.subreddit}</p>
-                      <p>{comment.body}</p>
-                    </div>
+                    <CommentCard
+                      key={comment.id}
+                      subreddit={comment.subreddit}
+                      postId={comment.postId}
+                      commentContent={comment.body}
+                      authorName={comment.authorName}
+                      onItemClick={handleItemClick}
+                    />
                   ))}
                 </div>
               )}
