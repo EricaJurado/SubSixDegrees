@@ -133,3 +133,8 @@ a {
   flex-direction: column;
   gap: 20px;
 }
+
+#graph-container {
+  height: 500px;
+  width: 100%;
+}

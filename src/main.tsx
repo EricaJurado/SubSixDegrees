@@ -146,13 +146,13 @@ Devvit.addCustomPostType({
         switch (data.type) {
           case 'INIT':
             // Send initial data to the webview
-            // postMessage({
-            //   type: 'INIT_RESPONSE',
-            //   payload: {
-            //     postId: context.postId!,
-            //     subredditPath: subredditPath,
-            //   },
-            // });
+            postMessage({
+              type: 'INIT_RESPONSE',
+              payload: {
+                postId: context.postId!,
+                subredditPath: {},
+              },
+            });
 
             // get current user's snoovatar
             const player = await redditAPI.getUserByUsername(username);

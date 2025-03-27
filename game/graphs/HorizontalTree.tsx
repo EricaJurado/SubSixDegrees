@@ -6,13 +6,11 @@ interface HorizontalTreeProps {
   data: Node;
   handleNodeClick: (node: Node) => void;
   currentNode?: Node | null;
-  snoovatarUrl?: string; // User's snoovatar URL
+  snoovatarUrl?: string;
   prepImageForComment?: boolean;
-  ref: any;
+  ref: any; // Use ref prop passed from parent
 }
 
-const width = 900;
-const height = 500;
 const margin = { top: 40, right: 100, bottom: 40, left: 100 };
 
 let svg: any = null;
@@ -23,19 +21,19 @@ const HorizontalTree = ({
   handleNodeClick,
   currentNode,
   snoovatarUrl,
-  prepImageForComment, // used to make sure snoo doesn't show up as broken image in comment
+  prepImageForComment,
   ref,
 }: HorizontalTreeProps) => {
   const drawTree = (treeData: any) => {
     const nodes = tree(buildNodesHierarchy(treeData));
-    svg = buildSvgContainer(width, height);
+    svg = buildSvgContainer();
     const group = buildGroup();
     buildLinksBetweenNodes(group, nodes);
     buildNode(group, nodes);
   };
 
   const initSvg = useCallback(() => {
-    tree = buildTreeMap(width, height);
+    tree = buildTreeMap();
 
     // clear prev SVG els before drawing a new one
     d3.select(ref.current).selectAll('*').remove();
@@ -51,7 +49,7 @@ const HorizontalTree = ({
         resetAllCircleStyle();
       }
     });
-  }, [drawTree, data]);
+  }, [drawTree, data, ref]);
 
   useEffect(() => {
     initSvg();
@@ -64,8 +62,6 @@ const HorizontalTree = ({
   const handleClickOnEntity = (event: MouseEvent, d: any) => {
     console.log('Node clicked:', d);
     handleNodeClick(d.data);
-
-    // resetAllCircleStyle();
     const target = event.target as SVGElement;
     d3.select(target)
       .transition()
@@ -76,32 +72,40 @@ const HorizontalTree = ({
       .attr('r', 5); // reset the radius
   };
 
-  const buildSvgContainer = (width: number, height: number) => {
-    return (
-      d3
-        .select(ref.current)
-        // .attr('width', width + margin.left + margin.right)
-        // .attr('height', height + margin.top + margin.bottom)
-        .attr('preserveAspectRatio', 'xMinYMin meet')
-        .attr('viewBox', '0 0 960 500')
-        .style('background-color', 'white')
-    );
+  const buildSvgContainer = () => {
+    const container = ref.current?.parentElement;
+    if (!container) return;
+
+    const { width, height } = container.getBoundingClientRect();
+    return d3
+      .select(ref.current)
+      .attr(
+        'viewBox',
+        `-${margin.left} -${margin.top} ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`
+      )
+      .attr('preserveAspectRatio', 'xMinYMin meet')
+      .style('background-color', 'white');
   };
 
   const buildGroup = () => {
     return svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
   };
 
-  const buildTreeMap = (width: number, height: number) => {
-    return d3.tree().size([height, width]);
+  const buildTreeMap = () => {
+    const container = ref.current?.parentElement;
+    if (!container) return;
+
+    const { width, height } = container.getBoundingClientRect();
+    return d3
+      .tree()
+      .size([
+        height ? height - margin.top - margin.bottom : 500,
+        width ? width - margin.left - margin.right : 400,
+      ]);
   };
 
   const buildNodesHierarchy = (nodes: any): any => {
-    return d3.hierarchy(nodes, (d: any) => {
-      if (d && d.children) {
-        return d.children;
-      }
-    });
+    return d3.hierarchy(nodes, (d: any) => d.children);
   };
 
   const buildLinksBetweenNodes = (group: any, nodes: any) => {
@@ -116,27 +120,6 @@ const HorizontalTree = ({
       .attr('d', function (d: any) {
         return `M${d.y},${d.x} L${d.parent.y},${d.parent.x}`;
       });
-
-    // .attr('d', function (d: any) {
-    //   return (
-    //     'M' +
-    //     d.y +
-    //     ',' +
-    //     d.x +
-    //     'C' +
-    //     (d.y + d.parent.y) / 2 +
-    //     ',' +
-    //     d.x +
-    //     ' ' +
-    //     (d.y + d.parent.y) / 2 +
-    //     ',' +
-    //     d.parent.x +
-    //     ' ' +
-    //     d.parent.y +
-    //     ',' +
-    //     d.parent.x
-    //   );
-    // });
   };
 
   const buildNode = (group: any, nodes: any) => {

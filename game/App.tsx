@@ -7,6 +7,7 @@ import { useDevvitListener } from './hooks/useDevvitListener';
 import dailyChallenges from './dailyChallenges.json';
 
 const getPage = (page: Page, { postId }: { postId: string }) => {
+  console.log(postId);
   switch (page) {
     case 'home':
       return <HomePage postId={postId} />;

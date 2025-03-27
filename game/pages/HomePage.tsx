@@ -207,6 +207,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       ctx.drawImage(img, 0, 0);
       // setBase64(canvas.toDataURL('image/png')); // Convert to Base64
       const base64OfSVG = canvas.toDataURL('image/png');
+      console.log(postId);
       sendRequest({
         type: 'COMMENT_ON_POST',
         payload: { postId: postId, comment: 'This is a test comment', base64Image: base64OfSVG },
@@ -303,14 +304,16 @@ export const HomePage = ({ postId }: { postId: string }) => {
         </>
       )}
 
-      <HorizontalTree
-        data={subredditPath}
-        handleNodeClick={handleNodeClick}
-        currentNode={currentNode}
-        snoovatarUrl={player?.snoovatarUrl}
-        ref={ref}
-        prepImageForComment={prepImageForComment}
-      />
+      <div id="graph-container">
+        <HorizontalTree
+          data={subredditPath}
+          handleNodeClick={handleNodeClick}
+          currentNode={currentNode}
+          snoovatarUrl={player?.snoovatarUrl}
+          ref={ref}
+          prepImageForComment={prepImageForComment}
+        />
+      </div>
     </div>
   );
 };
