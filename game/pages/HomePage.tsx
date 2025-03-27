@@ -71,7 +71,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
   }, [commentsData]);
 
   useEffect(() => {
-    if (userByUsername) setCurrUserObject(userByUsername.user || null);
+    if (userByUsername) setCurrUserObject(userByUsername?.user || null);
+    console.log(userByUsername?.user);
   }, [userByUsername]);
 
   const findNode = (node: Node, id: string, type: string): Node | null => {
@@ -210,28 +211,42 @@ export const HomePage = ({ postId }: { postId: string }) => {
       </button>
 
       {view === 'subreddit' && subredditFeedData && (
-        <SubredditFeed
-          subredditName={subredditFeedData.subreddit.name || ''}
-          subreddit={subredditFeedData.subreddit || {}}
-          feedData={subredditPosts}
-          onItemClick={handleItemClick}
-        />
+        <>
+          {subredditFeedData.subreddit.isNsfw && <p>NSFW</p>}
+          {/* make sure ! */}
+          {!subredditFeedData.subreddit.isNsfw && (
+            <SubredditFeed
+              subredditName={subredditFeedData.subreddit.name || ''}
+              subreddit={subredditFeedData.subreddit || {}}
+              feedData={subredditPosts}
+              onItemClick={handleItemClick}
+            />
+          )}
+        </>
       )}
 
       {view === 'user' && currUserObject && (
-        <RedditUserFeed
-          redditUser={{
-            username: currUserObject.username,
-            id: currUserObject.id,
-            snoovatarUrl: currUserObject.snoovatarUrl,
-            isAdmin: currUserObject.isAdmin,
-            nsfw: currUserObject.nsfw,
-          }}
-        />
+        <>
+          {currUserObject.nsfw && <p>NSFW</p>}
+          {!currUserObject.nsfw && (
+            <RedditUserFeed
+              redditUser={{
+                username: currUserObject.username,
+                id: currUserObject.id,
+                snoovatarUrl: currUserObject.snoovatarUrl,
+                isAdmin: currUserObject.isAdmin,
+                nsfw: currUserObject.nsfw,
+              }}
+            />
+          )}
+        </>
       )}
 
       {view === 'post' && post && comments && (
-        <Post post={post} comments={comments} onItemClick={handleItemClick} />
+        <>
+          {post.nsfw && <p>NSFW</p>}
+          {!post.nsfw && <Post post={post} comments={comments} onItemClick={handleItemClick} />}
+        </>
       )}
 
       <HorizontalTree

@@ -75,8 +75,8 @@ export class RedditService {
       const comments = await this.reddit
   .getComments({
     postId: postId,
-    limit: 10,
-    pageSize: 10,
+    limit: 20,
+    pageSize: 20,
   })
   .all();
       return comments;
@@ -90,6 +90,7 @@ export class RedditService {
   async getUserByUsername(username: string): Promise<any> {
     try {
       const user = await this.reddit.getUserByUsername(username);
+      console.log(user?.nsfw);
       const snoovatarUrl = await this.reddit.getSnoovatarUrl(username);
       const userWithSnoovatar = { ...user, snoovatarUrl };
       return userWithSnoovatar;

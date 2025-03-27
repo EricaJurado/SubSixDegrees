@@ -92,9 +92,16 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
       <h2>Posts</h2>
       <ul>
         {feedData.map((post: any) => (
-          <li key={post.postId}>
-            <PostPreview post={post} onItemClick={onItemClick} />
-          </li>
+          <>
+            {/* make sure ! */}
+
+            {!post.nsfw && (
+              <li key={post.postId}>
+                {post.nsfw}
+                <PostPreview post={post} onItemClick={onItemClick} />
+              </li>
+            )}
+          </>
         ))}
       </ul>
     </div>
