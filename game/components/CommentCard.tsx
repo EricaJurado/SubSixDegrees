@@ -16,7 +16,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
   onItemClick,
 }) => {
   return (
-    <div style={{ border: '1px solid #ccc', padding: '16px', borderRadius: '8px' }}>
+    <div>
       <button onClick={() => onItemClick('subreddit', subreddit, subreddit)}>r/{subreddit}</button>
       {/* <button onClick={() => onItemClick('post', postId, postId)}>{postId}</button> */}
       <button onClick={() => onItemClick('user', authorName, authorName)}>u/{authorName}</button>

@@ -12,16 +12,8 @@ const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
   return (
     <div>
       <h2>Preview: {post.title}</h2>
-      <button
-        onClick={() => onItemClick('post', post.postId, post.postId)}
-        style={{ cursor: 'pointer', color: 'blue' }}
-      >
-        {post.title}
-      </button>
-      <button
-        onClick={() => onItemClick('user', post.authorName, post.authorName)}
-        style={{ cursor: 'pointer', color: 'blue' }}
-      >
+      <button onClick={() => onItemClick('post', post.postId, post.postId)}>{post.title}</button>
+      <button onClick={() => onItemClick('user', post.authorName, post.authorName)}>
         {post.authorName}
       </button>
       <p>{post.createdAt}</p>
@@ -54,7 +46,6 @@ const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
       })}
       {/* <p
         onClick={() => onItemClick('subreddit', post.subreddit)}
-        style={{ cursor: 'pointer', color: 'blue' }}
       >
         r/{post.subreddit}
       </p> */}

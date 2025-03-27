@@ -1,3 +1,10 @@
+:root, html {
+  font-family: sans-serif;
+  background-color: #fff;
+
+  --reddit-red: #c41704;
+}
+
 .toolbar {
   height: 40px;
   width: 100%;
@@ -15,4 +22,54 @@
 
 .node--internal text {
   text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+}
+
+#subreddit-feed {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 20px;
+}
+
+#subreddit-info {
+  width: 30%;
+}
+
+#subreddit-posts-container {
+  width: 70%;
+}
+
+.post-preview {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-preview-header {
+  display: flex;
+}
+
+.post-preview-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-stats {
+  display: flex;
+  gap: 10px;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button {
+  text-decoration: underline;
+  text-decoration-color: var(--reddit-red);
+  background-color: transparent;
+  border: none;
+  color: black;
+  font-size: inherit;
+  text-decoration-thickness: 3px;
+  cursor: pointer;
 }

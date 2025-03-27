@@ -64,10 +64,7 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
                   return <span>{children}</span>;
                 }
                 return (
-                  <button
-                    style={{ cursor: 'pointer', color: 'blue' }}
-                    onClick={() => onItemClick('subreddit', subredditName, subredditName)}
-                  >
+                  <button onClick={() => onItemClick('subreddit', subredditName, subredditName)}>
                     {children}
                   </button>
                 );
@@ -82,28 +79,25 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
   };
 
   return (
-    <div>
-      <h1>{subredditName}</h1>
-      {/* Render the description with clickable buttons */}
-      {renderDescription()}
+    <div id="subreddit-feed">
+      <div id="subreddit-info">
+        <h1>{subredditName}</h1>
+        {/* Render the description with clickable buttons */}
+        {renderDescription()}
 
-      <p>Subscribers: {subreddit.subscribersCount}</p>
-      <p>{subreddit.isNsfw ? 'NSFW' : 'SFW'}</p>
-      <h2>Posts</h2>
-      <ul>
+        <p>Subscribers: {subreddit.subscribersCount}</p>
+        <p>{subreddit.isNsfw ? 'NSFW' : 'SFW'}</p>
+      </div>
+
+      <div id="subreddit-posts-container">
+        <h2>Posts</h2>
+
         {feedData.map((post: any) => (
-          <>
-            {/* make sure ! */}
-
-            {!post.nsfw && (
-              <li key={post.postId}>
-                {post.nsfw}
-                <PostPreview post={post} onItemClick={onItemClick} />
-              </li>
-            )}
-          </>
+          <div key={post.postId}>
+            {!post.nsfw && <PostPreview post={post} onItemClick={onItemClick} />}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
