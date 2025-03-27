@@ -3,7 +3,7 @@ import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
 import { RedditPost, Node, Subreddit } from '../shared';
 import { useDevvitListener } from '../hooks/useDevvitListener';
-import UserFeed from '../components/UserFeed';
+import UserProfile from '../components/UserProfile';
 import SubredditFeed from '../pages/SubredditFeed';
 import Post from '../components/Post';
 import dailyChallenges from '../dailyChallenges.json';
@@ -12,6 +12,7 @@ import CommentCard from '../components/CommentCard';
 import MapIcon from '@mui/icons-material/Map';
 import HelpIcon from '@mui/icons-material/Help';
 import HowTo from '../components/HowTo';
+import UserProfileFeed from './UserProfileFeed';
 
 const calculateShortestDistance = (
   subredditPath: Node,
@@ -356,48 +357,13 @@ export const HomePage = ({ postId }: { postId: string }) => {
 
         {view === 'user' && currUserObject && (
           <>
-            {currUserObject.nsfw && <p>NSFW</p>}
             {!currUserObject.nsfw && (
-              <>
-                <UserFeed
-                  redditUser={{
-                    username: currUserObject.username,
-                    id: currUserObject.id,
-                    snoovatarUrl: currUserObject.snoovatarUrl,
-                    isAdmin: currUserObject.isAdmin,
-                    nsfw: currUserObject.nsfw,
-                  }}
-                />
-                {userPosts && (
-                  <div>
-                    <h2>Posts</h2>
-                    {userPosts.posts.map((post) => (
-                      <div key={post.postId}>
-                        <PostPreview
-                          post={post}
-                          showSubreddit={true}
-                          onItemClick={handleItemClick}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {userComments && (
-                  <div>
-                    <h2>Comments</h2>
-                    {userComments.comments.map((comment) => (
-                      <CommentCard
-                        key={comment.id}
-                        subreddit={comment.subreddit}
-                        postId={comment.postId}
-                        commentContent={comment.body}
-                        authorName={comment.authorName}
-                        onItemClick={handleItemClick}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
+              <UserProfileFeed
+                comments={userComments?.comments || []}
+                posts={userPosts?.posts || []}
+                currUserObject={currUserObject}
+                handleItemClick={handleItemClick}
+              />
             )}
           </>
         )}

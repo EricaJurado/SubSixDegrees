@@ -117,6 +117,16 @@ export interface RedditPost {
   subreddit: string;
 }
 
+export interface RedditComment {
+  id: string;
+  postId: string;
+  body: string;
+  authorId: string;
+  authorName: string;
+  snoovatarURL: string;
+  subreddit: string;
+}
+
 export type Subreddit = {
   name: string | undefined;
   id: `t5_${string}` | undefined;
