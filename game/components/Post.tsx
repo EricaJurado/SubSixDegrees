@@ -1,6 +1,8 @@
 import React from 'react';
 import { RedditPost } from '../shared';
 import CommentCard from './CommentCard';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 
 type RedditPostProps = {
   post: RedditPost;
@@ -10,16 +12,14 @@ type RedditPostProps = {
 
 const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
   return (
-    <div>
-      <h2>Preview: {post.title}</h2>
-      <button onClick={() => onItemClick('post', post.postId, post.postId)}>{post.title}</button>
-      <button onClick={() => onItemClick('user', post.authorName, post.authorName)}>
-        {post.authorName}
-      </button>
-      <p>{post.createdAt}</p>
-      <p>{post.nsfw ? 'NSFW' : 'SFW'}</p>
-      <p>{post.score}</p>
-      <p>{post.numberOfComments}</p>
+    <div id="post">
+      <div className="post-preview-header">
+        <button onClick={() => onItemClick('user', post.authorName, post.authorName)}>
+          {post.authorName}
+        </button>
+        <p>{post.createdAt}</p>
+      </div>
+      <h3 className="post-title">{post.title}</h3>
       {post.bodyHtml && <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />}
       {post.thumbnail && (
         <img
@@ -29,6 +29,17 @@ const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
           height={post.thumbnail.height}
         />
       )}
+      <div className="post-stats">
+        <div className="post-votes stats">
+          <ArrowUpwardIcon />
+          <p>{post.score}</p>
+        </div>
+        <div className="post-comments stats">
+          <ChatBubbleOutlineIcon />
+          <p>{post.numberOfComments}</p>
+        </div>
+      </div>
+
       <h3>Comments</h3>
       {comments?.map((comment) => {
         if (comment.authorName !== 'AutoModerator') {
