@@ -97,3 +97,9 @@ a {
   justify-content: center;
   padding: 30px;
 }
+
+.comment-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}

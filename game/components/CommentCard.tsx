@@ -5,23 +5,27 @@ interface CommentCardProps {
   postId: string;
   authorName: string;
   commentContent: string;
+  showSubreddit?: boolean;
   onItemClick: (type: 'subreddit' | 'user' | 'post', name: string, id: string) => void;
 }
 
 const CommentCard: React.FC<CommentCardProps> = ({
   subreddit,
-  postId,
   authorName,
   commentContent,
+  showSubreddit = true,
   onItemClick,
 }) => {
   return (
-    <div>
-      <button onClick={() => onItemClick('subreddit', subreddit, subreddit)}>r/{subreddit}</button>
-      {/* <button onClick={() => onItemClick('post', postId, postId)}>{postId}</button> */}
-      <button onClick={() => onItemClick('user', authorName, authorName)}>u/{authorName}</button>
+    <>
+      <div className="post-preview-header">
+        {showSubreddit && (
+          <button onClick={() => onItemClick('post', subreddit, subreddit)}>r/{subreddit}</button>
+        )}
+        <button onClick={() => onItemClick('user', authorName, authorName)}>u/{authorName}</button>
+      </div>
       <p>{commentContent}</p>
-    </div>
+    </>
   );
 };
 

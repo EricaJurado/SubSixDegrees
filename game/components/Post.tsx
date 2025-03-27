@@ -41,20 +41,24 @@ const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
       </div>
 
       <h3>Comments</h3>
-      {comments?.map((comment) => {
-        if (comment.authorName !== 'AutoModerator') {
-          return (
-            <CommentCard
-              key={comment.id}
-              subreddit={post.subreddit}
-              postId={post.postId}
-              authorName={comment.authorName}
-              commentContent={comment.body}
-              onItemClick={onItemClick}
-            />
-          );
-        }
-      })}
+      <div className="comments-container">
+        {comments?.map((comment) => {
+          if (comment.authorName !== 'AutoModerator') {
+            return (
+              <CommentCard
+                key={comment.id}
+                subreddit={post.subreddit}
+                postId={post.postId}
+                authorName={comment.authorName}
+                commentContent={comment.body}
+                onItemClick={onItemClick}
+                showSubreddit={false}
+              />
+            );
+          }
+        })}
+      </div>
+
       {/* <p
         onClick={() => onItemClick('subreddit', post.subreddit)}
       >
