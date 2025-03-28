@@ -14,6 +14,9 @@ const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
   return (
     <div id="post">
       <div className="post-preview-header">
+        <button onClick={() => onItemClick('subreddit', post.subreddit, post.subreddit)}>
+          r/{post.subreddit}
+        </button>
         <button onClick={() => onItemClick('user', post.authorName, post.authorName)}>
           u/{post.authorName}
         </button>
