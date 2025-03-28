@@ -14,12 +14,12 @@ const PostPreview: React.FC<RedditPostProps> = ({ post, showSubreddit, onItemCli
     <div className="post-preview">
       <div className="post-preview-header">
         {showSubreddit && post.subreddit && (
-          <p
+          <button
             onClick={() => onItemClick('subreddit', post.subreddit, post.subreddit)}
             className="subreddit-link"
           >
             r/{post.subreddit}
-          </p>
+          </button>
         )}
         <button
           onClick={() => onItemClick('user', post.authorName, post.authorName)}

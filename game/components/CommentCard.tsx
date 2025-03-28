@@ -20,7 +20,9 @@ const CommentCard: React.FC<CommentCardProps> = ({
     <>
       <div className="post-preview-header">
         {showSubreddit && (
-          <button onClick={() => onItemClick('post', subreddit, subreddit)}>r/{subreddit}</button>
+          <button onClick={() => onItemClick('subreddit', subreddit, subreddit)}>
+            r/{subreddit}
+          </button>
         )}
         <button onClick={() => onItemClick('user', authorName, authorName)}>u/{authorName}</button>
       </div>

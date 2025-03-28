@@ -71,7 +71,7 @@ Devvit.addMenuItem({
     const subreddit = await reddit.getCurrentSubreddit();
 
     const post = await reddit.submitPost({
-      title: 'My first experience post',
+      title: 'SubSixDegrees',
       subredditName: subreddit.name,
       preview: <Preview />,
     });
@@ -146,11 +146,16 @@ Devvit.addCustomPostType({
         switch (data.type) {
           case 'INIT':
             // Send initial data to the webview
+            console.log('trying');
+            const parentPostInfo = await redditAPI.getPostById(context.postId!);
+            console.log(parentPostInfo);
+
             postMessage({
               type: 'INIT_RESPONSE',
               payload: {
                 postId: context.postId!,
                 subredditPath: {},
+                createdAt: parentPostInfo.createdAt?.toLocaleDateString(),
               },
             });
 
@@ -269,10 +274,8 @@ Devvit.addCustomPostType({
               url: data.payload.base64Image,
               type: 'image',
             });
-            console.log('imageResp', imageResp);
 
             const imageMediaId = imageResp.mediaId;
-            console.log('imageMediaId', imageMediaId);
 
             await redditAPI.commentOnPost(data.payload.postId, data.payload.comment, imageMediaId);
             break;

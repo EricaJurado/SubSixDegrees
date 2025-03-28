@@ -6,11 +6,43 @@ import { sendToDevvit } from './utils';
 import { useDevvitListener } from './hooks/useDevvitListener';
 import dailyChallenges from './dailyChallenges.json';
 
-const getPage = (page: Page, { postId }: { postId: string }) => {
+const allChallenges = dailyChallenges as Record<string, string[]>;
+
+const getPage = (
+  page: Page,
+  { postId, postCreatedAt }: { postId: string; postCreatedAt: string }
+) => {
   console.log(postId);
+  const dailyChallenge = allChallenges[postCreatedAt || '3/27/2025'];
+  let startSubreddit = dailyChallenge[0];
+  let targetSubreddit = dailyChallenge[1];
   switch (page) {
+    case 'dailyChallenge':
+      // what is this post's date create date?
+      if (!startSubreddit || !targetSubreddit) {
+        startSubreddit = 'AskReddit';
+        targetSubreddit = 'FoodPorn';
+      }
+      return (
+        <HomePage
+          postId={postId}
+          startSubreddit={startSubreddit}
+          targetSubreddit={targetSubreddit}
+        />
+      );
     case 'home':
-      return <HomePage postId={postId} />;
+      // what is this post's date create date?
+      if (!startSubreddit || !targetSubreddit) {
+        startSubreddit = 'AskReddit';
+        targetSubreddit = 'FoodPorn';
+      }
+      return (
+        <HomePage
+          postId={postId}
+          startSubreddit={startSubreddit}
+          targetSubreddit={targetSubreddit}
+        />
+      );
     default:
       throw new Error(`Unknown page: ${page satisfies never}`);
   }
@@ -18,6 +50,7 @@ const getPage = (page: Page, { postId }: { postId: string }) => {
 
 export const App = () => {
   const [postId, setPostId] = useState('');
+  const [postCreatedAt, setPostCreatedAt] = useState('');
   const page = usePage();
   const initData = useDevvitListener('INIT_RESPONSE');
 
@@ -34,9 +67,11 @@ export const App = () => {
 
   useEffect(() => {
     if (initData) {
+      console.log(initData);
+      setPostCreatedAt(initData.createdAt);
       setPostId(initData.postId);
     }
   }, [initData, setPostId]);
 
-  return <div>{getPage(page, { postId })}</div>;
+  return <div>{getPage(page, { postId, postCreatedAt })}</div>;
 };

@@ -1,51 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import HorizontalTree from '../graphs/HorizontalTree';
 import { sendToDevvit } from '../utils';
-import { RedditPost, Node, Subreddit } from '../shared';
+import { RedditPost, Node } from '../shared';
 import { useDevvitListener } from '../hooks/useDevvitListener';
-import UserProfile from '../components/UserProfile';
 import SubredditFeed from '../pages/SubredditFeed';
 import Post from '../components/Post';
 import dailyChallenges from '../dailyChallenges.json';
-import PostPreview from '../components/PostPreview';
-import CommentCard from '../components/CommentCard';
 import MapIcon from '@mui/icons-material/Map';
 import HelpIcon from '@mui/icons-material/Help';
 import HowTo from '../components/HowTo';
 import UserProfileFeed from './UserProfileFeed';
-
-const calculateShortestDistance = (
-  subredditPath: Node,
-  startSubreddit: string,
-  targetSubreddit: string
-): number => {
-  // Helper function to perform BFS (Breadth-First Search)
-  const bfs = (root: Node, start: string, target: string): number => {
-    const queue: { node: Node; distance: number }[] = [{ node: root, distance: 0 }];
-    const visited = new Set<string>(); // Track visited nodes to avoid cycles
-
-    while (queue.length > 0) {
-      const { node, distance } = queue.shift()!; // Get the next node and its distance
-
-      if (node.name.toLowerCase() === target.toLowerCase()) {
-        return distance; // Found the target subreddit, return the distance
-      }
-
-      visited.add(node.id);
-
-      // Add children nodes to the queue if not visited
-      for (const child of node.children) {
-        if (!visited.has(child.id)) {
-          queue.push({ node: child, distance: distance + 1 });
-        }
-      }
-    }
-
-    return -1; // Return -1 if targetSubreddit is not found
-  };
-
-  return bfs(subredditPath, startSubreddit, targetSubreddit);
-};
+import { calculateShortestDistance, insertNode } from '../pathNodeUtils';
+import Win from '../components/Win';
 
 const jumpToTop = () => {
   window.scrollTo({
@@ -54,14 +20,15 @@ const jumpToTop = () => {
   });
 };
 
-export const HomePage = ({ postId }: { postId: string }) => {
-  // get today's date and get the corresponding dailyChallenge
-  const today = new Date().toLocaleDateString();
-  const allChallenges = dailyChallenges as Record<string, string[]>;
-  const todaysChallenge = allChallenges[today];
-  const startSubreddit = todaysChallenge[0];
-  const targetSubreddit = todaysChallenge[1];
-
+export const HomePage = ({
+  postId,
+  startSubreddit,
+  targetSubreddit,
+}: {
+  postId: string;
+  startSubreddit: string;
+  targetSubreddit: string;
+}) => {
   const [subredditPath, setSubredditPath] = useState<Node>({
     name: startSubreddit,
     type: 'subreddit',
@@ -137,26 +104,6 @@ export const HomePage = ({ postId }: { postId: string }) => {
     }
   }, [userByUsername]);
 
-  const findNode = (node: Node, id: string, type: string): Node | null => {
-    if (node.id === id && node.type === type) return node;
-    for (const child of node.children) {
-      const found = findNode(child, id, type);
-      if (found) return found;
-    }
-    return null;
-  };
-
-  const insertNode = (root: Node, parent: Node, newNode: Node): Node => {
-    const existingNode = findNode(root, newNode.id.toLowerCase(), newNode.type);
-    if (existingNode) {
-      parent.children.push({ ...newNode, isLeafDuplicate: true, children: [] });
-      return existingNode;
-    } else {
-      parent.children.push(newNode);
-      return newNode;
-    }
-  };
-
   const handleItemClick = (type: 'subreddit' | 'user' | 'post', name: string, id: string) => {
     let parentNode = currentNode || subredditPath;
 
@@ -181,7 +128,6 @@ export const HomePage = ({ postId }: { postId: string }) => {
 
   const teleportToNode = (node: Node) => {
     setLoading(true);
-
     if (node.type === 'subreddit') {
       getSubredditFeed(node.name);
       setView('subreddit');
@@ -199,23 +145,18 @@ export const HomePage = ({ postId }: { postId: string }) => {
     jumpToTop();
   };
 
-  useEffect(() => {
-    console.log(userPosts);
-  }, [userPosts]);
-
-  useEffect(() => {
-    console.log(userComments);
-  }, [userComments]);
-
   const handleNodeClick = (node: Node) => {
     setCurrentNode(node);
     teleportToNode(node);
     setShowMap(false);
   };
 
+  const [hasWon, setHasWon] = useState(false);
+
   useEffect(() => {
     if (currentNode?.id.toString() === targetSubreddit.toLowerCase()) {
       console.log('WIN!!!!');
+      setHasWon(true);
       const shortestPath = calculateShortestDistance(
         subredditPath,
         startSubreddit,
@@ -228,10 +169,6 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const ref = useRef<SVGSVGElement | null>(null);
 
   const [prepImageForComment, setPrepImageForComment] = useState(true);
-
-  const testCommentTrigger = async () => {
-    setPrepImageForComment(false);
-  };
 
   useEffect(() => {
     if (!prepImageForComment) {
@@ -260,6 +197,7 @@ export const HomePage = ({ postId }: { postId: string }) => {
       ctx.drawImage(img, 0, 0);
       // setBase64(canvas.toDataURL('image/png')); // Convert to Base64
       const base64OfSVG = canvas.toDataURL('image/png');
+      console.log('in here', base64OfSVG);
       console.log(postId);
       sendRequest({
         type: 'COMMENT_ON_POST',
@@ -329,12 +267,15 @@ export const HomePage = ({ postId }: { postId: string }) => {
                 prepImageForComment={prepImageForComment}
               />
             </div>
-            <button onClick={testCommentTrigger}>Test Comment</button>
+            <button onClick={() => setPrepImageForComment(false)}>Test Comment</button>
           </div>
         </div>
       </div>
-      <div id="loading-container">{loading && <div className="loader"></div>}</div>
-      {!loading && (
+      <button onClick={() => handleItemClick('subreddit', targetSubreddit, targetSubreddit)}>
+        Test go to end node
+      </button>
+      {loading && <div className="loader"></div>}
+      {!loading && !hasWon && (
         <>
           {view === 'subreddit' && subredditFeedData && (
             <>
@@ -374,8 +315,25 @@ export const HomePage = ({ postId }: { postId: string }) => {
           )}
         </>
       )}
-      {/* 
-      <p>PostId: {postId}</p>
+      {hasWon && (
+        <Win
+          onShare={() => setPrepImageForComment(false)}
+          graph={
+            <div id="graph-container">
+              <HorizontalTree
+                data={subredditPath}
+                handleNodeClick={handleNodeClick}
+                currentNode={currentNode}
+                snoovatarUrl={player?.snoovatarUrl}
+                ref={ref}
+                prepImageForComment={prepImageForComment}
+              />
+            </div>
+          }
+        />
+      )}
+
+      {/* <p>PostId: {postId}</p>
       <button onClick={() => handleItemClick('subreddit', 'javascript', 'test')}>
         Go to r/javascript
       </button>

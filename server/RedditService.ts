@@ -77,7 +77,9 @@ export class RedditService {
   // get post by id
   async getPostById(postId: string): Promise<any> {
     try {
+      console.log(postId);
       const post = await this.reddit.getPostById(postId);
+      console.log(post.createdAt);
       return post;
     } catch (error) {
       console.error(`Error fetching post by id ${postId}: ${error}`);

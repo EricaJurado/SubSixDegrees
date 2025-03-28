@@ -1,5 +1,5 @@
 export type Page =
-  | "home";
+  | "home" | "dailyChallenge";
 
 export type WebviewToBlockMessage = 
   | { type: "INIT"; payload: { } }
@@ -35,6 +35,7 @@ export type BlocksToWebviewMessage =
       payload: {
         postId: string;
         subredditPath: Record<string, string[]>;
+        createdAt: string;
       };
     }
   | {
