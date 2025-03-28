@@ -9,6 +9,10 @@ body {
   margin: 0px;
 }
 
+#main-page {
+  height: 100vh;
+}
+
 
 .toolbar {
   height: 40px;

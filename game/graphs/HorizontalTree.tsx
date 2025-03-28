@@ -81,6 +81,7 @@ const HorizontalTree = ({
   const handleClickOnEntity = (event: MouseEvent, d: any) => {
     console.log('Node clicked:', d);
     handleNodeClick(d.data);
+    hideTooltip();
     const target = event.target as SVGElement;
     d3.select(target)
       .transition()

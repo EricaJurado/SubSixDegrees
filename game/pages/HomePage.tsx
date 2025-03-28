@@ -277,69 +277,79 @@ export const HomePage = ({
       <button onClick={() => handleItemClick('subreddit', 'smallfrogs', 'smallfrogs')}>
         Test go to end node
       </button>
-      {loading && <div className="loader"></div>}
-      {!loading && !hasWon && (
-        <>
-          {view === 'subreddit' && subredditFeedData && (
-            <>
-              {subredditFeedData.subreddit.isNsfw && <p>NSFW</p>}
-              {/* make sure ! */}
-              {!subredditFeedData.subreddit.isNsfw && (
-                <SubredditFeed
-                  subredditName={subredditFeedData.subreddit.name || ''}
-                  subreddit={subredditFeedData.subreddit || {}}
-                  feedData={subredditPosts}
-                  onItemClick={handleItemClick}
-                  bannerImage={subredditFeedData.subreddit.styles?.bannerImage}
-                  icon={subredditFeedData.subreddit.styles?.icon}
-                />
-              )}
-              {subredditFeedData.error && (
-                <p style={{ justifyContent: 'center', width: '100%', textAlign: 'center' }}>
-                  Uh-oh, this subreddit doesn't exist.
-                </p>
-              )}
-            </>
-          )}
+      <div
+        id="main-page"
+        onClick={() => {
+          setShowMap(false);
+          setShowHowTo(false);
+        }}
+      >
+        {loading && <div className="loader"></div>}
+        {!loading && !hasWon && (
+          <>
+            {view === 'subreddit' && subredditFeedData && (
+              <>
+                {subredditFeedData.subreddit.isNsfw && <p>NSFW</p>}
+                {/* make sure ! */}
+                {!subredditFeedData.subreddit.isNsfw && (
+                  <SubredditFeed
+                    subredditName={subredditFeedData.subreddit.name || ''}
+                    subreddit={subredditFeedData.subreddit || {}}
+                    feedData={subredditPosts}
+                    onItemClick={handleItemClick}
+                    bannerImage={subredditFeedData.subreddit.styles?.bannerImage}
+                    icon={subredditFeedData.subreddit.styles?.icon}
+                  />
+                )}
+                {subredditFeedData.error && (
+                  <p style={{ justifyContent: 'center', width: '100%', textAlign: 'center' }}>
+                    Uh-oh, this subreddit doesn't exist.
+                  </p>
+                )}
+              </>
+            )}
 
-          {view === 'user' && currUserObject && (
-            <>
-              {!currUserObject.nsfw && (
-                <UserProfileFeed
-                  comments={userComments?.comments || []}
-                  posts={userPosts?.posts || []}
-                  currUserObject={currUserObject}
-                  handleItemClick={handleItemClick}
-                />
-              )}
-            </>
-          )}
+            {view === 'user' && currUserObject && (
+              <>
+                {!currUserObject.nsfw && (
+                  <UserProfileFeed
+                    comments={userComments?.comments || []}
+                    posts={userPosts?.posts || []}
+                    currUserObject={currUserObject}
+                    handleItemClick={handleItemClick}
+                  />
+                )}
+              </>
+            )}
 
-          {view === 'post' && post && comments && (
-            <>
-              {post.nsfw && <p>NSFW</p>}
-              {!post.nsfw && <Post post={post} comments={comments} onItemClick={handleItemClick} />}
-            </>
-          )}
-        </>
-      )}
-      {hasWon && (
-        <Win
-          onShare={() => setPrepImageForComment(false)}
-          graph={
-            <div id="graph-container">
-              <HorizontalTree
-                data={subredditPath}
-                handleNodeClick={handleNodeClick}
-                currentNode={currentNode}
-                snoovatarUrl={player?.snoovatarUrl}
-                ref={ref}
-                prepImageForComment={prepImageForComment}
-              />
-            </div>
-          }
-        />
-      )}
+            {view === 'post' && post && comments && (
+              <>
+                {post.nsfw && <p>NSFW</p>}
+                {!post.nsfw && (
+                  <Post post={post} comments={comments} onItemClick={handleItemClick} />
+                )}
+              </>
+            )}
+          </>
+        )}
+        {hasWon && (
+          <Win
+            onShare={() => setPrepImageForComment(false)}
+            graph={
+              <div id="graph-container">
+                <HorizontalTree
+                  data={subredditPath}
+                  handleNodeClick={handleNodeClick}
+                  currentNode={currentNode}
+                  snoovatarUrl={player?.snoovatarUrl}
+                  ref={ref}
+                  prepImageForComment={prepImageForComment}
+                />
+              </div>
+            }
+          />
+        )}
+      </div>
 
       {/* <p>PostId: {postId}</p>
       <button onClick={() => handleItemClick('subreddit', 'javascript', 'test')}>
