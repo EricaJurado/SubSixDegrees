@@ -11,6 +11,7 @@ import HowTo from '../components/HowTo';
 import UserProfileFeed from './UserProfileFeed';
 import { calculateShortestDistance, insertNode } from '../pathNodeUtils';
 import Win from '../components/Win';
+import UndoIcon from '@mui/icons-material/Undo';
 
 const jumpToTop = () => {
   window.scrollTo({
@@ -107,8 +108,25 @@ export const HomePage = ({
     }
   }, [userByUsername]);
 
+  const [nodeHistory, setNodeHistory] = useState<Node[]>([]);
+
+  useEffect(() => {
+    const initialNode: Node = {
+      name: startSubreddit,
+      type: 'subreddit',
+      id: startSubreddit.toLowerCase(),
+      children: [],
+      isLeafDuplicate: false,
+    };
+    setNodeHistory([initialNode]);
+  }, [startSubreddit]);
+
   const handleItemClick = (type: 'subreddit' | 'user' | 'post', name: string, id: string) => {
     let parentNode = currentNode || subredditPath;
+
+    if (currentNode) {
+      setNodeHistory((prev) => [...prev, currentNode]);
+    }
 
     if (type === 'subreddit') {
       sendRequest({
@@ -231,10 +249,30 @@ export const HomePage = ({
     }
   };
 
+  const goBack = () => {
+    console.log('Going back');
+    console.log(nodeHistory);
+    if (nodeHistory.length === 0) return; // Prevent going back if no history
+
+    const previousNode = nodeHistory[nodeHistory.length - 1]; // Get last visited node
+    setNodeHistory((prev) => prev.slice(0, -1)); // Remove last node from history
+    setCurrentNode(previousNode);
+    teleportToNode(previousNode);
+  };
+
   return (
     <div>
       <div id="menu">
         <div id="goal-banner">
+          <button
+            onClick={() => goBack()}
+            disabled={nodeHistory.length === 0}
+            className="menu-button"
+            style={{ visibility: nodeHistory.length === 0 ? 'hidden' : 'visible' }}
+          >
+            <UndoIcon style={{ color: 'white' }} />
+          </button>
+
           <h1 id="goal-text">
             <button onClick={() => handleItemClick('subreddit', startSubreddit, startSubreddit)}>
               r/{startSubreddit}
