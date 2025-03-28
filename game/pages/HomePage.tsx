@@ -83,6 +83,14 @@ export const HomePage = ({ postId }: { postId: string }) => {
   const userPosts = useDevvitListener('USER_POSTS');
   const userComments = useDevvitListener('USER_COMMENTS');
 
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (subredditFeedData || commentsData || userByUsername || post || userPosts || userComments) {
+      setLoading(false);
+    }
+  }, [subredditFeedData, commentsData, userByUsername, post, userPosts, userComments]);
+
   const sendRequest = (message: {
     type:
       | 'GET_SUBREDDIT_FEED'
@@ -172,6 +180,8 @@ export const HomePage = ({ postId }: { postId: string }) => {
   };
 
   const teleportToNode = (node: Node) => {
+    setLoading(true);
+
     if (node.type === 'subreddit') {
       getSubredditFeed(node.name);
       setView('subreddit');
@@ -323,6 +333,47 @@ export const HomePage = ({ postId }: { postId: string }) => {
           </div>
         </div>
       </div>
+      <div id="loading-container">{loading && <div className="loader"></div>}</div>
+      {!loading && (
+        <>
+          {view === 'subreddit' && subredditFeedData && (
+            <>
+              {subredditFeedData.subreddit.isNsfw && <p>NSFW</p>}
+              {/* make sure ! */}
+              {!subredditFeedData.subreddit.isNsfw && (
+                <SubredditFeed
+                  subredditName={subredditFeedData.subreddit.name || ''}
+                  subreddit={subredditFeedData.subreddit || {}}
+                  feedData={subredditPosts}
+                  onItemClick={handleItemClick}
+                  bannerImage={subredditFeedData.subreddit.styles.bannerImage}
+                  icon={subredditFeedData.subreddit.styles.icon}
+                />
+              )}
+            </>
+          )}
+
+          {view === 'user' && currUserObject && (
+            <>
+              {!currUserObject.nsfw && (
+                <UserProfileFeed
+                  comments={userComments?.comments || []}
+                  posts={userPosts?.posts || []}
+                  currUserObject={currUserObject}
+                  handleItemClick={handleItemClick}
+                />
+              )}
+            </>
+          )}
+
+          {view === 'post' && post && comments && (
+            <>
+              {post.nsfw && <p>NSFW</p>}
+              {!post.nsfw && <Post post={post} comments={comments} onItemClick={handleItemClick} />}
+            </>
+          )}
+        </>
+      )}
       {/* 
       <p>PostId: {postId}</p>
       <button onClick={() => handleItemClick('subreddit', 'javascript', 'test')}>
@@ -337,44 +388,6 @@ export const HomePage = ({ postId }: { postId: string }) => {
       <button onClick={() => handleItemClick('subreddit', 'webdev', 'test3')}>
         Go to r/webdev
       </button> */}
-      <>
-        {view === 'subreddit' && subredditFeedData && (
-          <>
-            {subredditFeedData.subreddit.isNsfw && <p>NSFW</p>}
-            {/* make sure ! */}
-            {!subredditFeedData.subreddit.isNsfw && (
-              <SubredditFeed
-                subredditName={subredditFeedData.subreddit.name || ''}
-                subreddit={subredditFeedData.subreddit || {}}
-                feedData={subredditPosts}
-                onItemClick={handleItemClick}
-                bannerImage={subredditFeedData.subreddit.styles.bannerImage}
-                icon={subredditFeedData.subreddit.styles.icon}
-              />
-            )}
-          </>
-        )}
-
-        {view === 'user' && currUserObject && (
-          <>
-            {!currUserObject.nsfw && (
-              <UserProfileFeed
-                comments={userComments?.comments || []}
-                posts={userPosts?.posts || []}
-                currUserObject={currUserObject}
-                handleItemClick={handleItemClick}
-              />
-            )}
-          </>
-        )}
-
-        {view === 'post' && post && comments && (
-          <>
-            {post.nsfw && <p>NSFW</p>}
-            {!post.nsfw && <Post post={post} comments={comments} onItemClick={handleItemClick} />}
-          </>
-        )}
-      </>
     </div>
   );
 };

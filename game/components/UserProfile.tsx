@@ -7,11 +7,11 @@ interface UserProfileProps {
 
 const UserProfile: React.FC<UserProfileProps> = ({ redditUser }) => {
   return (
-    <div style={{ border: '1px solid #ccc', padding: '16px', borderRadius: '8px' }}>
-      <h2>Reddit User Details</h2>
-      <div>
-        <img src={redditUser.snoovatarUrl} alt="User Avatar" /> <h2>{redditUser.username}</h2>
-      </div>
+    <div id="user-profile">
+      {redditUser.snoovatarUrl && (
+        <img src={redditUser.snoovatarUrl} alt="User Avatar" height="100px" />
+      )}
+      <h2>u/{redditUser.username}</h2>
     </div>
   );
 };

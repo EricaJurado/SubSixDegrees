@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import CommentCard from '../components/CommentCard';
 import PostPreview from '../components/PostPreview';
 import UserProfile from '../components/UserProfile';
@@ -16,8 +17,10 @@ const UserProfileFeed: React.FC<UserProfileFeedProps> = ({
   currUserObject,
   handleItemClick,
 }) => {
+  const [currTab, setCurrTab] = useState('posts');
+
   return (
-    <>
+    <div id="user-profile-feed">
       <UserProfile
         redditUser={{
           username: currUserObject.username,
@@ -27,9 +30,23 @@ const UserProfileFeed: React.FC<UserProfileFeedProps> = ({
           nsfw: currUserObject.nsfw,
         }}
       />
-      {posts && (
+      <div id="user-profile-feed-tabs" className="tabs">
+        <button
+          className={currTab == 'posts' ? 'currentTab' : ''}
+          onClick={() => setCurrTab('posts')}
+        >
+          Posts
+        </button>
+        <button
+          className={currTab == 'comments' ? 'currentTab' : ''}
+          onClick={() => setCurrTab('comments')}
+        >
+          Comments
+        </button>
+      </div>
+      {currTab === 'posts' && (
         <div>
-          <h2>Posts</h2>
+          {posts && posts.length === 0 && <p>No posts yet</p>}
           {posts.map((post) => (
             <div key={post.postId}>
               <PostPreview post={post} showSubreddit={true} onItemClick={handleItemClick} />
@@ -37,9 +54,9 @@ const UserProfileFeed: React.FC<UserProfileFeedProps> = ({
           ))}
         </div>
       )}
-      {comments && (
+      {currTab === 'comments' && (
         <div>
-          <h2>Comments</h2>
+          {comments && comments.length === 0 && <p>No comments yet</p>}
           {comments.map((comment) => (
             <CommentCard
               key={comment.id}
@@ -52,7 +69,7 @@ const UserProfileFeed: React.FC<UserProfileFeedProps> = ({
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 };
 

@@ -15,7 +15,7 @@ const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
     <div id="post">
       <div className="post-preview-header">
         <button onClick={() => onItemClick('user', post.authorName, post.authorName)}>
-          {post.authorName}
+          u/{post.authorName}
         </button>
         <p>{post.createdAt}</p>
       </div>

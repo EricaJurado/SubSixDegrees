@@ -1,7 +1,8 @@
 :root, html {
   font-family: sans-serif;
   background-color: #fff;
-  --reddit-red: #c41704;
+  --reddit-red: #E22E02;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -199,4 +200,102 @@ a {
   align-items: center;
   justify-content: flex-end;
   text-decoration: none;
+}
+
+#user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#user-profile-feed {
+  width: 80%;
+  max-width: 800px;
+  padding: 10px 30px;
+
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px
+}
+
+.tabs button {
+  background-color: white;
+  border-radius: 20px;
+  border: none;
+  color: black;
+  font-size: inherit;
+  cursor: pointer;
+  text-align: start;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.tabs .currentTab {
+  background-color: #C9D7DE;
+}
+
+
+/* HTML: <div class="loader"></div> */
+#loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 500px;
+}
+
+.loader {
+  width: 50px;
+  aspect-ratio: 1;
+  display: grid;
+  opacity: 0.8;
+}
+
+.loader:before,
+.loader:after {
+  content: "";
+  grid-area: 1/1;
+  margin: 0 0 15px 15px;
+  --c: #0000 calc(100%/3), var(--reddit-red) 0 calc(2*100%/3), #0000 0;
+  --c1: linear-gradient(90deg, var(--c));
+  --c2: linear-gradient(0deg, var(--c));
+  background: var(--c1), var(--c2), var(--c1), var(--c2);
+  background-size: 300% 4px, 4px 300%;
+  background-repeat: no-repeat;
+  animation: l12 2s infinite linear;
+  opacity: 0.8;
+  animation-delay: 1s;
+}
+
+.loader:after {
+  margin: 15px 15px 0 0;
+  transform: scale(-1, -1);
+}
+
+@keyframes l12 {
+  0% {
+    background-position: 50% 0, 100% 100%, 0 100%, 0 0
+  }
+
+  25% {
+    background-position: 0 0, 100% 50%, 0 100%, 0 0
+  }
+
+  50% {
+    background-position: 0 0, 100% 0, 50% 100%, 0 0
+  }
+
+  75% {
+    background-position: 0 0, 100% 0, 100% 100%, 0 50%
+  }
+
+  75.01% {
+    background-position: 100% 0, 100% 0, 100% 100%, 0 50%
+  }
+
+  100% {
+    background-position: 50% 0, 100% 0, 100% 100%, 0 100%
+  }
 }
