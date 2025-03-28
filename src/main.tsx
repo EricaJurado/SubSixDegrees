@@ -50,7 +50,7 @@ Devvit.addSchedulerJob({
 
 // Add a menu item for creating a post
 Devvit.addMenuItem({
-  label: 'Make my experience post',
+  label: 'Create SubSixDegrees Post',
   location: 'subreddit',
   forUserType: 'moderator',
   onPress: async (_event, context) => {

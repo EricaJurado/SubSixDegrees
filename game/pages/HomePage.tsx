@@ -117,18 +117,15 @@ export const HomePage = ({
     }
   }, [userByUsername]);
 
-  const [nodeHistory, setNodeHistory] = useState<Node[]>([]);
-
-  useEffect(() => {
-    const initialNode: Node = {
+  const [nodeHistory, setNodeHistory] = useState<Node[]>([
+    {
       name: startSubreddit,
       type: 'subreddit',
       id: startSubreddit.toLowerCase(),
       children: [],
       isLeafDuplicate: false,
-    };
-    setNodeHistory([initialNode]);
-  }, [startSubreddit]);
+    },
+  ]);
 
   const handleItemClick = (type: 'subreddit' | 'user' | 'post', name: string, id: string) => {
     let parentNode = currentNode || subredditPath;
@@ -288,9 +285,8 @@ export const HomePage = ({
         <div id="goal-banner">
           <button
             onClick={() => goBack()}
-            disabled={nodeHistory.length === 0}
             className="menu-button"
-            style={{ visibility: nodeHistory.length === 0 ? 'hidden' : 'visible' }}
+            style={{ visibility: nodeHistory.length == 0 ? 'hidden' : 'visible' }}
           >
             <UndoIcon style={{ color: 'white' }} />
           </button>
@@ -350,9 +346,6 @@ export const HomePage = ({
           </div>
         </div>
       </div>
-      <button onClick={() => handleItemClick('subreddit', 'smallfrogs', 'smallfrogs')}>
-        Test go to end node
-      </button>
       <div
         id="main-page"
         onClick={() => {

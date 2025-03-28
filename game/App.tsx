@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { sendToDevvit } from './utils';
 import { useDevvitListener } from './hooks/useDevvitListener';
 import dailyChallenges from './dailyChallenges.json';
+import { start } from 'repl';
 
 const getPage = (
   page: Page,
@@ -43,7 +44,10 @@ export const App = () => {
   const initData = useDevvitListener('INIT_RESPONSE');
 
   const allChallenges = dailyChallenges as Record<string, string[]>;
-  const [toFrom, setToFrom] = useState(['AskReddit', 'FoodPorn']);
+  const defaultToFrom = allChallenges[new Date().toLocaleDateString()];
+  const startSubreddit = defaultToFrom[0] || 'AskReddit';
+  const targetSubreddit = defaultToFrom[1] || 'FoodPorn';
+  const [toFrom, setToFrom] = useState([startSubreddit, targetSubreddit]);
 
   useEffect(() => {
     sendToDevvit({ type: 'INIT', payload: {} });
