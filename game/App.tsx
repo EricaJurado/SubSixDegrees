@@ -6,23 +6,16 @@ import { sendToDevvit } from './utils';
 import { useDevvitListener } from './hooks/useDevvitListener';
 import dailyChallenges from './dailyChallenges.json';
 
-const allChallenges = dailyChallenges as Record<string, string[]>;
-
 const getPage = (
   page: Page,
-  { postId, postCreatedAt }: { postId: string; postCreatedAt: string }
+  {
+    postId,
+    startSubreddit,
+    targetSubreddit,
+  }: { postId: string; startSubreddit: string; targetSubreddit: string }
 ) => {
-  console.log(postId);
-  const dailyChallenge = allChallenges[postCreatedAt || '3/27/2025'];
-  let startSubreddit = dailyChallenge[0];
-  let targetSubreddit = dailyChallenge[1];
   switch (page) {
     case 'dailyChallenge':
-      // what is this post's date create date?
-      if (!startSubreddit || !targetSubreddit) {
-        startSubreddit = 'AskReddit';
-        targetSubreddit = 'FoodPorn';
-      }
       return (
         <HomePage
           postId={postId}
@@ -31,11 +24,6 @@ const getPage = (
         />
       );
     case 'home':
-      // what is this post's date create date?
-      if (!startSubreddit || !targetSubreddit) {
-        startSubreddit = 'AskReddit';
-        targetSubreddit = 'FoodPorn';
-      }
       return (
         <HomePage
           postId={postId}
@@ -54,24 +42,27 @@ export const App = () => {
   const page = usePage();
   const initData = useDevvitListener('INIT_RESPONSE');
 
-  // get today's date and get the corresponding dailyChallenge
-  const today = new Date().toLocaleDateString();
   const allChallenges = dailyChallenges as Record<string, string[]>;
-  const todaysChallenge = allChallenges[today];
-  const startSubreddit = todaysChallenge[0];
+  const [toFrom, setToFrom] = useState(['AskReddit', 'FoodPorn']);
 
   useEffect(() => {
     sendToDevvit({ type: 'INIT', payload: {} });
-    sendToDevvit({ type: 'GET_SUBREDDIT_FEED', payload: { subredditName: startSubreddit } });
   }, []);
 
   useEffect(() => {
     if (initData) {
-      console.log(initData);
       setPostCreatedAt(initData.createdAt);
       setPostId(initData.postId);
-    }
-  }, [initData, setPostId]);
 
-  return <div>{getPage(page, { postId, postCreatedAt })}</div>;
+      const targetDate = postCreatedAt ? postCreatedAt : new Date().toLocaleDateString();
+      const dailyChallenge = allChallenges[targetDate];
+      if (dailyChallenge && dailyChallenge.length === 2) {
+        setToFrom(dailyChallenge);
+      }
+    }
+  }, [initData?.createdAt]);
+
+  return (
+    <div>{getPage(page, { postId, startSubreddit: toFrom[0], targetSubreddit: toFrom[1] })}</div>
+  );
 };

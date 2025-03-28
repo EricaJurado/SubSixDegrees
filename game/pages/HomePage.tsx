@@ -53,6 +53,10 @@ export const HomePage = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    sendToDevvit({ type: 'GET_SUBREDDIT_FEED', payload: { subredditName: startSubreddit } });
+  }, []);
+
+  useEffect(() => {
     if (subredditFeedData || commentsData || userByUsername || post || userPosts || userComments) {
       setLoading(false);
     }
@@ -271,7 +275,7 @@ export const HomePage = ({
           </div>
         </div>
       </div>
-      <button onClick={() => handleItemClick('subreddit', targetSubreddit, targetSubreddit)}>
+      <button onClick={() => handleItemClick('subreddit', 'reptiles', 'reptiles')}>
         Test go to end node
       </button>
       {loading && <div className="loader"></div>}

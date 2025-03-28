@@ -7,7 +7,6 @@
 
 body {
   margin: 0px;
-  overflow-x: hidden;
 }
 
 
@@ -35,10 +34,13 @@ body {
 }
 
 #subreddit-banner-container {
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100px;
+  overflow-x: clip;
+  overflow-y: clip;
+  margin-bottom: 10px;
 }
 
 #subreddit-feed-name {
@@ -52,14 +54,16 @@ body {
   flex-direction: row-reverse;
   gap: 10px;
   padding: 0px 20px;
+  max-width: 100%;
 }
 
 #subreddit-info {
-  width: 30%;
+  width: 35%;
   padding-right: 30px;
   text-wrap: wrap;
   word-wrap: break-word;
   white-space: normal;
+  overflow-x: hidden;
 }
 
 #subreddit-info h1 {
@@ -71,8 +75,11 @@ body {
 }
 
 #subreddit-posts-container {
-  width: 70%;
+  width: 65%;
   padding: 0px 30px;
+  text-wrap: wrap;
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .post-preview {

@@ -95,10 +95,12 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
   };
 
   return (
-    <>
-      <div id="subreddit-banner-container">
-        <img src={bannerImage} alt="Subreddit banner" height="100px" />
-      </div>
+    <div style={{ width: '100%', height: '100%' }}>
+      {bannerImage && (
+        <div id="subreddit-banner-container">
+          <img src={bannerImage} alt="Subreddit banner" />
+        </div>
+      )}
 
       <div id="subreddit-feed">
         <div id="subreddit-info">
@@ -110,7 +112,13 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
 
         <div id="subreddit-posts-container">
           <div id="subreddit-feed-name">
-            <img src={icon} alt="Subreddit icon" height="100px" />
+            {icon && (
+              <img
+                src={icon}
+                alt="Subreddit icon"
+                style={{ objectFit: 'cover', borderRadius: '50%', width: '100px' }}
+              />
+            )}
             <h1>r/{subredditName}</h1>
           </div>
           {feedData.map((post: any) => (
@@ -125,7 +133,7 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

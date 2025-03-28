@@ -43,7 +43,7 @@ export class RedditService {
   }
 
   // Get top posts from a subreddit
-  async getTopPosts(subreddit: string, limit: number = 2): Promise<any[]> {
+  async getTopPosts(subreddit: string, limit: number = 20): Promise<any[]> {
     try {
       const posts = await this.reddit.getTopPosts({
         subredditName: subreddit,
@@ -57,7 +57,7 @@ export class RedditService {
   }
 
   // Get new posts from a subreddit
-  async getNewPosts(subreddit: string, limit: number = 10): Promise<any[]> {
+  async getNewPosts(subreddit: string, limit: number = 20): Promise<any[]> {
     try {
       const posts = await this.reddit.getNewPosts({
         subredditName: subreddit,
@@ -97,6 +97,7 @@ export class RedditService {
     pageSize: 20,
   })
   .all();
+  console.log(comments.length);
       return comments;
     } catch (error) {
       console.error(`Error fetching comments for post ${postId}: ${error}`);
