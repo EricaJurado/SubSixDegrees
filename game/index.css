@@ -191,7 +191,7 @@ a {
   background-color: var(--reddit-red);
   color: white;
   text-align: center;
-  justify-content: center;
+  justify-content: space-between;
   display: flex;
   padding: 10px;
   font-size: .6em;
@@ -216,6 +216,12 @@ a {
   text-decoration-color: white;
   margin-right: 8px;
   font-weight: bold;
+}
+
+#esc-menu {
+  padding: 10px;
+  color: "black";
+  float: right;
 }
 
 .menu-button {

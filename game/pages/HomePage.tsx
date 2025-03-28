@@ -12,6 +12,7 @@ import UserProfileFeed from './UserProfileFeed';
 import { calculateShortestDistance, insertNode } from '../pathNodeUtils';
 import Win from '../components/Win';
 import UndoIcon from '@mui/icons-material/Undo';
+import CloseIcon from '@mui/icons-material/Close';
 
 const jumpToTop = () => {
   window.scrollTo({
@@ -280,11 +281,9 @@ export const HomePage = ({
             to r/{targetSubreddit}
           </h1>
           <button onClick={() => toggleMenu('howTo')} className="menu-button">
-            <p>{showHowTo ? 'Hide ' : 'Show '}</p>
             <HelpIcon style={{ color: 'white' }} />
           </button>
           <button onClick={() => toggleMenu('map')} className="menu-button">
-            <p>{showMap ? 'Hide ' : 'Show '}</p>
             <MapIcon style={{ color: 'white' }} />
           </button>
         </div>
@@ -295,9 +294,27 @@ export const HomePage = ({
             style={{ display: showHowTo ? 'block' : 'none' }}
             id="how-to-play"
           >
+            <button
+              onClick={() => {
+                setShowMap(false);
+                setShowHowTo(false);
+              }}
+              id="esc-menu"
+            >
+              <CloseIcon />
+            </button>
             <HowTo />
           </div>
           <div className="menu-popup" style={{ display: showMap ? 'block' : 'none' }}>
+            <button
+              onClick={() => {
+                setShowMap(false);
+                setShowHowTo(false);
+              }}
+              id="esc-menu"
+            >
+              <CloseIcon />
+            </button>
             <div id="graph-container">
               <HorizontalTree
                 data={subredditPath}
