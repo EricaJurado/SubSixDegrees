@@ -97,8 +97,32 @@ Devvit.addCustomPostType({
         // let subredditPath = await getSubredditGraph(context, context.postId!, username);
 
         const getSubredditInfo = async (subredditName: string) => {
-          const posts = await redditAPI.getNewPosts(subredditName);
-          const subreddit = await redditAPI.getSubredditDetails(subredditName);
+          let posts = [];
+          let subreddit = null;
+          try {
+            posts = await redditAPI.getNewPosts(subredditName);
+            console.log('here?');
+            subreddit = await redditAPI.getSubredditDetails(subredditName);
+          } catch (error) {
+            console.error(`Error fetching subreddit info: ${error}`);
+          }
+
+          console.log('Past to here');
+          if (!subreddit) {
+            console.log('error?');
+            postMessage({
+              type: 'SUBREDDIT_FEED',
+              payload: {
+                posts: [],
+                subreddit: {
+                  name: subredditName,
+                  id: subredditName,
+                },
+                error: true,
+              },
+            });
+            return;
+          }
 
           let subredditStyles = {
             bannerImage: '',
@@ -106,6 +130,10 @@ Devvit.addCustomPostType({
           };
           try {
             const subredditId = posts[0]?.subredditId;
+            if (!subredditId) {
+              console.error('No subreddit ID found');
+              return;
+            }
             subredditStyles = await redditAPI.getSubredditStyles(subredditId);
             console.log(subredditStyles);
           } catch (error) {

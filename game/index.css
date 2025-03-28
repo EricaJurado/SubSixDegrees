@@ -106,6 +106,12 @@ body {
   gap: 10px;
 }
 
+.post-thumbnail {
+  display: flex;
+  justify-content: center;
+  padding: 3px;
+}
+
 .stats {
   display: flex;
   justify-content: center;

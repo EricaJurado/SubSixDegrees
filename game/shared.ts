@@ -51,7 +51,7 @@ export type BlocksToWebviewMessage =
         previousSubreddit: string;
       };
     }
-    | {type: "SUBREDDIT_FEED", payload: { posts: any[], subreddit:any }}
+    | {type: "SUBREDDIT_FEED", payload: { posts: any[], subreddit:any, error?: boolean }}
     | {type: "testing", payload: { posts: string }}
     | {type: "POST_COMMENTS", payload: { comments: any[] }}
     | {type: "USER_BY_USERNAME", payload: { user: any }}

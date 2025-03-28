@@ -69,28 +69,33 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
 
     // Use markdown-to-jsx to convert HTML to JSX, and override <a> tags to render buttons
     return (
-      <Markdown
-        options={{
-          disableAutoLink: true,
-          overrides: {
-            a: {
-              component: ({ children, ...props }: any) => {
-                const subredditName = props['data-subreddit']; // Get subreddit name from custom attribute
-                if (!subredditName) {
-                  return <span>{children}</span>;
-                }
-                return (
-                  <button onClick={() => onItemClick('subreddit', subredditName, subredditName)}>
-                    {children}
-                  </button>
-                );
+      <>
+        <Markdown
+          options={{
+            disableAutoLink: true,
+            overrides: {
+              a: {
+                component: ({ children, ...props }: any) => {
+                  const subredditName = props['data-subreddit']; // Get subreddit name from custom attribute
+                  if (!subredditName) {
+                    return <span>{children}</span>;
+                  }
+                  return (
+                    <button onClick={() => onItemClick('subreddit', subredditName, subredditName)}>
+                      {children}
+                    </button>
+                  );
+                },
               },
             },
-          },
-        }}
-      >
-        {descriptionWithLinks}
-      </Markdown>
+          }}
+        >
+          {descriptionWithLinks}
+        </Markdown>
+        {subreddit?.subscribersCount > 0 && (
+          <p>Subscribers: {formatSubscribersNumber(subreddit.subscribersCount)}</p>
+        )}
+      </>
     );
   };
 
@@ -106,8 +111,6 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
         <div id="subreddit-info">
           {/* Render the description with clickable buttons */}
           {renderDescription()}
-
-          <p>Subscribers: {formatSubscribersNumber(subreddit.subscribersCount)}</p>
         </div>
 
         <div id="subreddit-posts-container">

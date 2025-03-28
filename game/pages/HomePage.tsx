@@ -275,7 +275,7 @@ export const HomePage = ({
           </div>
         </div>
       </div>
-      <button onClick={() => handleItemClick('subreddit', 'reptiles', 'reptiles')}>
+      <button onClick={() => handleItemClick('subreddit', 'smallfrogs', 'smallfrogs')}>
         Test go to end node
       </button>
       {loading && <div className="loader"></div>}
@@ -291,9 +291,14 @@ export const HomePage = ({
                   subreddit={subredditFeedData.subreddit || {}}
                   feedData={subredditPosts}
                   onItemClick={handleItemClick}
-                  bannerImage={subredditFeedData.subreddit.styles.bannerImage}
-                  icon={subredditFeedData.subreddit.styles.icon}
+                  bannerImage={subredditFeedData.subreddit.styles?.bannerImage}
+                  icon={subredditFeedData.subreddit.styles?.icon}
                 />
+              )}
+              {subredditFeedData.error && (
+                <p style={{ justifyContent: 'center', width: '100%', textAlign: 'center' }}>
+                  Uh-oh, this subreddit doesn't exist.
+                </p>
               )}
             </>
           )}

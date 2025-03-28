@@ -41,12 +41,14 @@ const PostPreview: React.FC<RedditPostProps> = ({ post, showSubreddit, onItemCli
         {post.body && <p>{post.body}</p>}
         {/* {post.bodyHtml && <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />} */}
         {post.thumbnail && (
-          <img
-            src={post.thumbnail.url}
-            alt="thumbnail"
-            width={post.thumbnail.width}
-            height={post.thumbnail.height}
-          />
+          <div className="post-thumbnail">
+            <img
+              src={post.thumbnail.url}
+              alt="thumbnail"
+              width={post.thumbnail.width}
+              height={post.thumbnail.height}
+            />
+          </div>
         )}
         <div className="post-stats">
           <div className="post-votes stats">

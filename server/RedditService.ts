@@ -14,12 +14,13 @@ export class RedditService {
       const subredditData = await this.reddit.getSubredditInfoByName(subreddit);
       const subredditInfo: Subreddit = {
         name: subreddit,
-        id: subredditData.id || 't5_example',
-        isNsfw: subredditData.isNsfw || false,
-        description: subredditData.description?.markdown || '',
-        subscribersCount: subredditData.subscribersCount || 0,
+        id: subredditData?.id || 't5_example',
+        isNsfw: subredditData?.isNsfw || false,
+        description: subredditData?.description?.markdown || '',
+        subscribersCount: subredditData?.subscribersCount || 0,
       }
-      return subredditData;
+      console.log(subredditInfo);
+      return subredditInfo;
     } catch (error) {
       console.error(`Error fetching subreddit data: ${error}`);
       throw error;
