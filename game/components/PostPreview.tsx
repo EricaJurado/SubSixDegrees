@@ -32,7 +32,7 @@ const PostPreview: React.FC<RedditPostProps> = ({ post, showSubreddit, onItemCli
 
       <button
         className="post-preview-title"
-        onClick={() => onItemClick('post', post.postId, post.postId)}
+        onClick={() => onItemClick('post', post.title, post.postId)}
       >
         <h3 className="post-title">{post.title}</h3>
       </button>

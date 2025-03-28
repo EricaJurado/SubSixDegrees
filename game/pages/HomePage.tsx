@@ -132,17 +132,17 @@ export const HomePage = ({
   const teleportToNode = (node: Node) => {
     setLoading(true);
     if (node.type === 'subreddit') {
-      getSubredditFeed(node.name);
+      getSubredditFeed(node.id);
       setView('subreddit');
     } else if (node.type === 'user') {
-      getUserByUsername(node.name);
-      getUserPosts(node.name);
-      getUserComments(node.name);
+      getUserByUsername(node.id);
+      getUserPosts(node.id);
+      getUserComments(node.id);
       setView('user');
     } else if (node.type === 'post') {
       console.log('teleporting to post', node);
-      getPost(node.name);
-      getPostComments(node.name);
+      getPost(node.id);
+      getPostComments(node.id);
       setView('post');
     }
     jumpToTop();
