@@ -221,15 +221,16 @@ a {
 #esc-menu {
   padding: 10px;
   color: "black";
-  float: right;
+  right: 0px;
+  position: absolute;
 }
 
 .menu-button {
   color: white;
-  width: 100px;
+  width: 50px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   text-decoration: none;
 }
 
