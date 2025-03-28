@@ -143,6 +143,14 @@ a {
   padding: 30px;
 }
 
+.preview-body-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-height: 100px;
+}
+
 .comment-container {
   display: flex;
   flex-direction: column;

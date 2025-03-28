@@ -38,7 +38,7 @@ const PostPreview: React.FC<RedditPostProps> = ({ post, showSubreddit, onItemCli
       </button>
       <div className="post-preview-body">
         {/* <p>{post.nsfw ? 'NSFW' : 'SFW'}</p> */}
-        {post.body && <p>{post.body}</p>}
+        {post.body && <p className="preview-body-content">{post.body}</p>}
         {/* {post.bodyHtml && <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />} */}
         {post.thumbnail && (
           <div className="post-thumbnail">
