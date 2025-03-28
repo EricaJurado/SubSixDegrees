@@ -10,6 +10,9 @@ export type WebviewToBlockMessage =
   | { type: "GET_SUBREDDIT_FEED";
     payload: { subredditName: string };
   }
+  | { type: "GET_SUBREDDIT_POSTS";
+    payload: { subredditName: string, after?: string };
+  }
   | { type: "GET_POST_COMMENTS";
     payload: { postId: string };
   }
@@ -52,7 +55,7 @@ export type BlocksToWebviewMessage =
       };
     }
     | {type: "SUBREDDIT_FEED", payload: { posts: any[], subreddit:any, error?: boolean }}
-    | {type: "testing", payload: { posts: string }}
+    | {type: "SUBREDDIT_FEED_POSTS", payload: { posts: any[] }}
     | {type: "POST_COMMENTS", payload: { comments: any[] }}
     | {type: "USER_BY_USERNAME", payload: { user: any }}
     | {type: "PLAYER", payload: { 

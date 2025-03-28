@@ -44,6 +44,7 @@ export const HomePage = ({
   const [view, setView] = useState<'subreddit' | 'post' | 'user'>('subreddit');
 
   const subredditFeedData = useDevvitListener('SUBREDDIT_FEED');
+  const subredditFeedPosts = useDevvitListener('SUBREDDIT_FEED_POSTS');
   const commentsData = useDevvitListener('POST_COMMENTS');
   const userByUsername = useDevvitListener('USER_BY_USERNAME');
   const player = useDevvitListener('PLAYER');
@@ -52,6 +53,12 @@ export const HomePage = ({
   const userComments = useDevvitListener('USER_COMMENTS');
 
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (subredditFeedPosts) {
+      setSubredditPosts((prev) => [...prev, ...subredditFeedPosts.posts]);
+    }
+  }, [subredditFeedPosts]);
 
   useEffect(() => {
     sendToDevvit({ type: 'GET_SUBREDDIT_FEED', payload: { subredditName: startSubreddit } });
@@ -66,6 +73,7 @@ export const HomePage = ({
   const sendRequest = (message: {
     type:
       | 'GET_SUBREDDIT_FEED'
+      | 'GET_SUBREDDIT_POSTS'
       | 'GET_POST_COMMENTS'
       | 'GET_USER_BY_USERNAME'
       | 'DISCOVER_SUBREDDIT'
@@ -261,6 +269,19 @@ export const HomePage = ({
     teleportToNode(previousNode);
   };
 
+  const getMorePosts = (subredditName: string, after?: string) => {
+    console.log('Getting more posts for subreddit:', subredditName);
+    const lastPostId = subredditPosts[subredditPosts.length - 1]?.postId;
+    console.log('Last post ID:', lastPostId);
+    if (lastPostId) {
+      after = lastPostId;
+    }
+    sendRequest({
+      type: 'GET_SUBREDDIT_POSTS',
+      payload: { subredditName, after },
+    });
+  };
+
   return (
     <div>
       <div id="menu">
@@ -347,14 +368,22 @@ export const HomePage = ({
                 {subredditFeedData.subreddit.isNsfw && <p>NSFW</p>}
                 {/* make sure ! */}
                 {!subredditFeedData.subreddit.isNsfw && (
-                  <SubredditFeed
-                    subredditName={subredditFeedData.subreddit.name || ''}
-                    subreddit={subredditFeedData.subreddit || {}}
-                    feedData={subredditPosts}
-                    onItemClick={handleItemClick}
-                    bannerImage={subredditFeedData.subreddit.styles?.bannerImage}
-                    icon={subredditFeedData.subreddit.styles?.icon}
-                  />
+                  <div id="sub-container">
+                    <SubredditFeed
+                      subredditName={subredditFeedData.subreddit.name || ''}
+                      subreddit={subredditFeedData.subreddit || {}}
+                      feedData={subredditPosts}
+                      onItemClick={handleItemClick}
+                      bannerImage={subredditFeedData.subreddit.styles?.bannerImage}
+                      icon={subredditFeedData.subreddit.styles?.icon}
+                    />
+                    <button
+                      className="load-more"
+                      onClick={() => getMorePosts(subredditFeedData?.subreddit.name)}
+                    >
+                      Load more
+                    </button>
+                  </div>
                 )}
                 {subredditFeedData.error && (
                   <p style={{ justifyContent: 'center', width: '100%', textAlign: 'center' }}>

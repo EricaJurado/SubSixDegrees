@@ -190,6 +190,35 @@ Devvit.addCustomPostType({
             await getSubredditInfo(data.payload.subredditName);
             break;
 
+          case 'GET_SUBREDDIT_POSTS':
+            const postsAfter = await redditAPI.getNewPosts(
+              data.payload.subredditName,
+              20,
+              data.payload.after
+            );
+            const formattedPostsAfter = postsAfter.map((post) => ({
+              postId: post.id,
+              title: post.title,
+              authorName: post.authorName,
+              body: post.body,
+              bodyHtml: post.bodyHtml,
+              createdAt: timeAgo(post.createdAt),
+              nsfw: post.nsfw,
+              score: post.score,
+              numberOfComments: post.numberOfComments,
+              thumbnail: post.thumbnail,
+              secureMedia: post.secureMedia,
+              subreddit: post.subredditName,
+            }));
+            postMessage({
+              type: 'SUBREDDIT_FEED_POSTS',
+              payload: {
+                posts: formattedPostsAfter,
+              },
+            });
+
+            break;
+
           case 'GET_POST':
             const post = await redditAPI.getPostById(data.payload.postId);
             postMessage({

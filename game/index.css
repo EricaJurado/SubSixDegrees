@@ -61,6 +61,22 @@ body {
   max-width: 100%;
 }
 
+.load-more {
+  background-color: white;
+  color: black;
+  padding: 10px;
+  border: 1px solid var(--reddit-red);
+  border-width: 1px;
+  border-radius: 20px;
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+#sub-container {
+  text-align: center;
+}
+
 #subreddit-info {
   width: 35%;
   padding-right: 30px;

@@ -43,13 +43,15 @@ export class RedditService {
     }
   }
 
-  // Get top posts from a subreddit
-  async getTopPosts(subreddit: string, limit: number = 20): Promise<any[]> {
+  // Get top posts from a subreddit with pagination support
+  async getTopPosts(subreddit: string, limit: number = 20, after: string = ''): Promise<any[]> {
     try {
       const posts = await this.reddit.getTopPosts({
         subredditName: subreddit,
         limit: limit,
+        after: after, //id
       }).all();
+      
       return posts;
     } catch (error) {
       console.error(`Error fetching posts from subreddit: ${error}`);
@@ -57,12 +59,14 @@ export class RedditService {
     }
   }
 
+
   // Get new posts from a subreddit
-  async getNewPosts(subreddit: string, limit: number = 20): Promise<any[]> {
+  async getNewPosts(subreddit: string, limit: number = 20, after: string = ''): Promise<any[]> {
     try {
       const posts = await this.reddit.getNewPosts({
         subredditName: subreddit,
         limit: limit,
+        after: after, //id
       }).all();
       return posts;
     } catch (error) {
