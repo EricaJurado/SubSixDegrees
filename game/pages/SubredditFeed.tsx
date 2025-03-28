@@ -59,6 +59,7 @@ const SubredditFeed: React.FC<SubredditFeedProps> = ({
   // Render description with subreddit mentions converted to <a> tags
   const renderDescription = () => {
     // Convert markdown to HTML and replace subreddit mentions with <a> tags
+    console.log(subreddit.description);
     if (!subreddit.description) {
       return null;
     }

@@ -12,6 +12,7 @@ export class RedditService {
   async getSubredditDetails(subreddit: string): Promise<any> {
     try {
       const subredditData = await this.reddit.getSubredditInfoByName(subreddit);
+      console.log(subredditData.description)
       const subredditInfo: Subreddit = {
         name: subreddit,
         id: subredditData?.id || 't5_example',
@@ -30,12 +31,10 @@ export class RedditService {
   async getSubredditStyles(subreddit: string): Promise<any> {
     try {
       const styles = await this.reddit.getSubredditStyles(subreddit);
-      console.log(styles);
       const subredditStyles = {
         bannerImage: styles.bannerBackgroundImage,
         icon: styles.icon,
       }
-      console.log(subredditStyles);
       return subredditStyles;
     } catch (error) {
       console.error(`Error fetching subreddit styles: ${error}`);
@@ -82,9 +81,7 @@ export class RedditService {
   // get post by id
   async getPostById(postId: string): Promise<any> {
     try {
-      console.log(postId);
       const post = await this.reddit.getPostById(postId);
-      console.log(post.createdAt);
       return post;
     } catch (error) {
       console.error(`Error fetching post by id ${postId}: ${error}`);
@@ -102,7 +99,6 @@ export class RedditService {
     pageSize: 20,
   })
   .all();
-  console.log(comments.length);
       return comments;
     } catch (error) {
       console.error(`Error fetching comments for post ${postId}: ${error}`);

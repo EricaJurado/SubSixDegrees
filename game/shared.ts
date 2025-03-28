@@ -135,7 +135,7 @@ export type Subreddit = {
   name: string | undefined;
   id: `t5_${string}` | undefined;
   isNsfw: boolean;
-  description: string;
+  description: string | "";
   subscribersCount: number;
 };
 

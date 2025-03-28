@@ -164,7 +164,6 @@ export const HomePage = ({
       getUserComments(node.id);
       setView('user');
     } else if (node.type === 'post') {
-      console.log('teleporting to post', node);
       getPost(node.id);
       getPostComments(node.id);
       setView('post');
@@ -182,14 +181,12 @@ export const HomePage = ({
 
   useEffect(() => {
     if (currentNode?.id.toString() === targetSubreddit.toLowerCase()) {
-      console.log('WIN!!!!');
       setHasWon(true);
       const shortestPath = calculateShortestDistance(
         subredditPath,
         startSubreddit,
         targetSubreddit
       );
-      console.log('Shortest Path:', shortestPath);
     }
   }, [currentNode]);
 
@@ -224,8 +221,6 @@ export const HomePage = ({
       ctx.drawImage(img, 0, 0);
       // setBase64(canvas.toDataURL('image/png')); // Convert to Base64
       const base64OfSVG = canvas.toDataURL('image/png');
-      console.log('in here', base64OfSVG);
-      console.log(postId);
       sendRequest({
         type: 'COMMENT_ON_POST',
         payload: { postId: postId, comment: 'This is a test comment', base64Image: base64OfSVG },
@@ -237,9 +232,7 @@ export const HomePage = ({
   };
 
   useEffect(() => {
-    console.log(subredditPath);
     const distance = calculateShortestDistance(subredditPath, startSubreddit, targetSubreddit);
-    console.log('Distance:', distance);
   }, [subredditPath]);
 
   const [showMap, setShowMap] = useState(false);
@@ -256,8 +249,6 @@ export const HomePage = ({
   };
 
   const goBack = () => {
-    console.log('Going back');
-    console.log(nodeHistory);
     if (nodeHistory.length === 0) return; // Prevent going back if no history
 
     const previousNode = nodeHistory[nodeHistory.length - 1]; // Get last visited node
@@ -267,9 +258,7 @@ export const HomePage = ({
   };
 
   const getMorePosts = (subredditName: string, after?: string) => {
-    console.log('Getting more posts for subreddit:', subredditName);
     const lastPostId = subredditPosts[subredditPosts.length - 1]?.postId;
-    console.log('Last post ID:', lastPostId);
     if (lastPostId) {
       after = lastPostId;
     }
@@ -342,7 +331,6 @@ export const HomePage = ({
                 prepImageForComment={prepImageForComment}
               />
             </div>
-            <button onClick={() => setPrepImageForComment(false)}>Test Comment</button>
           </div>
         </div>
       </div>
@@ -361,7 +349,7 @@ export const HomePage = ({
                 {subredditFeedData.subreddit.isNsfw && <p>NSFW</p>}
                 {/* make sure ! */}
                 {!subredditFeedData.subreddit.isNsfw && (
-                  <div id="sub-container">
+                  <div>
                     <SubredditFeed
                       subredditName={subredditFeedData.subreddit.name || ''}
                       subreddit={subredditFeedData.subreddit || {}}

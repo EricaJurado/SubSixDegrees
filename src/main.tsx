@@ -88,15 +88,12 @@ Devvit.addCustomPostType({
           let subreddit = null;
           try {
             posts = await redditAPI.getNewPosts(subredditName);
-            console.log('here?');
             subreddit = await redditAPI.getSubredditDetails(subredditName);
           } catch (error) {
             console.error(`Error fetching subreddit info: ${error}`);
           }
 
-          console.log('Past to here');
           if (!subreddit) {
-            console.log('error?');
             postMessage({
               type: 'SUBREDDIT_FEED',
               payload: {
@@ -122,7 +119,6 @@ Devvit.addCustomPostType({
               return;
             }
             subredditStyles = await redditAPI.getSubredditStyles(subredditId);
-            console.log(subredditStyles);
           } catch (error) {
             console.error(`Error fetching subreddit styles: ${error}`);
           }
@@ -150,7 +146,7 @@ Devvit.addCustomPostType({
                 name: subreddit.name,
                 id: subreddit.id,
                 isNsfw: subreddit.isNsfw,
-                description: subreddit.description?.markdown,
+                description: subreddit.description,
                 subscribersCount: subreddit.subscribersCount,
                 styles: subredditStyles,
               },
@@ -161,9 +157,7 @@ Devvit.addCustomPostType({
         switch (data.type) {
           case 'INIT':
             // Send initial data to the webview
-            console.log('trying');
             const parentPostInfo = await redditAPI.getPostById(context.postId!);
-            console.log(parentPostInfo);
 
             postMessage({
               type: 'INIT_RESPONSE',
@@ -242,7 +236,6 @@ Devvit.addCustomPostType({
 
           case 'GET_POST_COMMENTS':
             const comments = await redditAPI.getPostComments(data.payload.postId);
-            console.log(comments[0]);
             const formattedComments = comments.map((comment) => ({
               id: comment.id,
               postId: comment.postId,
@@ -270,7 +263,6 @@ Devvit.addCustomPostType({
             break;
 
           case 'GET_USER_POSTS':
-            console.log('GET_USER_POSTS');
             const userPosts = await redditAPI.getUserPostsByName(data.payload.username);
             const formattedUserPosts = userPosts.map((post) => ({
               postId: post.id,
@@ -295,7 +287,6 @@ Devvit.addCustomPostType({
             break;
 
           case 'GET_USER_COMMENTS':
-            console.log('GET_USER_COMMENTS');
             const userComments = await redditAPI.getUserCommentsByName(data.payload.username);
             const formattedUserComments = userComments.map((comment) => ({
               postId: comment.postId,
@@ -332,8 +323,21 @@ Devvit.addCustomPostType({
     });
 
     return (
-      <vstack height="100%" width="100%" alignment="center middle">
-        <button onPress={() => mount()}>Launch WebView</button>
+      <vstack height="100%" width="100%" alignment="center middle" backgroundColor="#f0f0f0">
+        <zstack height="100%" width="100%">
+          <image
+            url="BackgroundImage.png"
+            imageHeight={1024}
+            imageWidth={1792}
+            height={'100%'}
+            width={'100%'}
+            resizeMode="cover"
+            grow={true}
+          ></image>
+          <vstack height="100%" width="100%" alignment="center middle">
+            <button onPress={() => mount()}>Play SubSixDegrees</button>
+          </vstack>
+        </zstack>
       </vstack>
     );
   },

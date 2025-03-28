@@ -71,6 +71,8 @@ body {
   font-size: inherit;
   cursor: pointer;
   text-decoration: none;
+  float: center;
+  position: absolute;
 }
 
 #sub-container {
