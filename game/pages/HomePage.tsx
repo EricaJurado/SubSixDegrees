@@ -5,7 +5,6 @@ import { RedditPost, Node } from '../shared';
 import { useDevvitListener } from '../hooks/useDevvitListener';
 import SubredditFeed from '../pages/SubredditFeed';
 import Post from '../components/Post';
-import dailyChallenges from '../dailyChallenges.json';
 import MapIcon from '@mui/icons-material/Map';
 import HelpIcon from '@mui/icons-material/Help';
 import HowTo from '../components/HowTo';

@@ -1,55 +1,12 @@
-import {
-  Devvit,
-  getSubredditInfoByName,
-  RedditAPIClient,
-  useState,
-  useWebView,
-} from '@devvit/public-api';
-import { DEVVIT_SETTINGS_KEYS } from './constants.js';
+import { Devvit, useWebView } from '@devvit/public-api';
 import { BlocksToWebviewMessage, RedditPost, WebviewToBlockMessage } from '../game/shared.js';
 import { Preview } from './components/Preview.js';
 import { RedditService } from '../server/RedditService.js';
 import { timeAgo } from './utils.js';
-import { get } from 'http';
-import { UIDimensions } from '@devvit/protos';
 
 // Get current username, defaulting to 'anon' if none found
 const getCurrentUsername = async (context: any) => {
   return (await context.reddit.getCurrentUsername()) ?? 'anon';
-};
-
-// Get the stored subreddit graph from Redis
-const getSubredditGraph = async (context: any, postId: string, username: string) => {
-  const redisKey = `subredditGraph_${postId}_${username}`;
-  const graphData = await context.redis.get(redisKey);
-  return graphData ? JSON.parse(graphData) : {}; // Default to empty if no data exists
-};
-
-// Update the graph with a new subreddit connection
-const addSubredditConnection = async (
-  context: any,
-  postId: string,
-  username: string,
-  fromSubreddit: string,
-  toSubreddit: string
-) => {
-  const redisKey = `subredditGraph_${postId}_${username}`;
-  let graph = await getSubredditGraph(context, postId, username);
-
-  // If the subreddit doesn't exist in the graph, add it
-  if (!graph[fromSubreddit]) graph[fromSubreddit] = [];
-  if (!graph[toSubreddit]) graph[toSubreddit] = [];
-
-  // Avoid duplicate connections between subreddits
-  if (!graph[fromSubreddit].includes(toSubreddit)) {
-    graph[fromSubreddit].push(toSubreddit);
-  }
-  if (!graph[toSubreddit].includes(fromSubreddit)) {
-    graph[toSubreddit].push(fromSubreddit);
-  }
-
-  // Save the updated graph in Redis
-  await context.redis.set(redisKey, JSON.stringify(graph));
 };
 
 // Register Devvit settings
@@ -60,6 +17,36 @@ Devvit.configure({
   realtime: true,
   media: true,
 });
+
+Devvit.addSchedulerJob({
+  name: 'daily-thread',
+  onRun: async (job, context) => {
+    const subreddit = await context.reddit.getCurrentSubreddit();
+    const today = new Date().toLocaleString('us-en');
+    const resp = await context.reddit.submitPost({
+      subredditName: subreddit.name,
+      title: `Daily Challenge ${today}`,
+      text: 'Solve the daily challenge!',
+    });
+  },
+});
+
+// Devvit.addTrigger({
+//   event: 'AppInstall',
+//   onEvent: async (_, context) => {
+//     try {
+//       const jobId = await context.scheduler.runJob({
+//         cron: '0 7 * * *', // Run daily at 12:00 UTC
+//         name: 'daily-thread',
+//         data: {},
+//       });
+//       await context.redis.set('jobId', jobId);
+//     } catch (e) {
+//       console.log('error was not able to schedule:', e);
+//       throw e;
+//     }
+//   },
+// });
 
 // Add a menu item for creating a post
 Devvit.addMenuItem({

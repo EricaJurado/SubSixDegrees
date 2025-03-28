@@ -24,7 +24,7 @@ const Post: React.FC<RedditPostProps> = ({ post, comments, onItemClick }) => {
       </div>
       <h3 className="post-title">{post.title}</h3>
       {post.bodyHtml && <div dangerouslySetInnerHTML={{ __html: post.bodyHtml }} />}
-      {post.thumbnail && (
+      {post.thumbnail?.url && (
         <img
           src={post.thumbnail.url}
           alt="thumbnail"

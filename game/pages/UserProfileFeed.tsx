@@ -55,7 +55,7 @@ const UserProfileFeed: React.FC<UserProfileFeedProps> = ({
         </div>
       )}
       {currTab === 'comments' && (
-        <div>
+        <div style={{ marginTop: '10px' }}>
           {comments && comments.length === 0 && <p>No comments yet</p>}
           {comments.map((comment) => (
             <CommentCard
